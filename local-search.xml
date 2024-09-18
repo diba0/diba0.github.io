@@ -4,6 +4,37 @@
   
   
   <entry>
+    <title>Windows下安装使用Anaconda</title>
+    <link href="/2024/09/18/Windows%E4%B8%8B%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8Anaconda/"/>
+    <url>/2024/09/18/Windows%E4%B8%8B%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8Anaconda/</url>
+    
+    <content type="html"><![CDATA[<h2 id="一、摘要"><a href="#一、摘要" class="headerlink" title="一、摘要"></a>一、摘要</h2><p>参考知士荟大学计算机基础空间文章<a href="https://www.learnerhub.net/#/spaces/422/resources-docs/22046">Windows下安装使用Anaconda</a>，记录本人安装和使用Anacond的过程。下文中提到的“文章”均指代该链接对应的文章。</p><span id="more"></span><h2 id="二、下载和安装Anaconda"><a href="#二、下载和安装Anaconda" class="headerlink" title="二、下载和安装Anaconda"></a>二、下载和安装Anaconda</h2><h3 id="2-1-操作系统位数"><a href="#2-1-操作系统位数" class="headerlink" title="2.1 操作系统位数"></a>2.1 操作系统位数</h3><p>一般来说，现在新买笔记本的话的操作系统都是64位的。毕竟64位操作系统的内存就更大呀，32位操作系统只有4GB，新的笔记本一般都会预装64位的操作系统。展示一下我的笔记本，Windows 11直接在设置-&gt;系统-&gt;系统信息中查看：<br><img src="/img/windows+install+Anaconda/system_info.png"></p><h3 id="2-2-下载Anaconda"><a href="#2-2-下载Anaconda" class="headerlink" title="2.2 下载Anaconda"></a>2.2 下载Anaconda</h3><p>文章推荐是下载2023-7的版本，但是我看了一下，<a href="https://repo.anaconda.com/archive/">官网</a>里给出的对应版本也没有32位（对应x86）的呀，只有x86_64（算是默认前面的操作系统位数一定是64位了）。直接点击下载对应的exe文件：<br><img src="/img/windows+install+Anaconda/Anaconda_download.png"></p><h3 id="2-3-安装Anaconda"><a href="#2-3-安装Anaconda" class="headerlink" title="2.3 安装Anaconda"></a>2.3 安装Anaconda</h3><p>点击下载好的exe-&gt;next-&gt;I Agree-&gt;next，到了安装位置这里，推荐不安装到c盘，我直接将”C”改成”D”，如下：<br><img src="/img/windows+install+Anaconda/Anaconda_install_D.png"><br>然后继续next-&gt;install即可，显示Complete后点击next-&gt;Finish(这里两个勾选框是启动Anaconda包管理器和查看相关文档，不想看就取消勾选，本文对此没有要求)</p><h2 id="三、使用Spyder"><a href="#三、使用Spyder" class="headerlink" title="三、使用Spyder"></a>三、使用Spyder</h2><h3 id="3-1-修改主题"><a href="#3-1-修改主题" class="headerlink" title="3.1 修改主题"></a>3.1 修改主题</h3><ol><li>在windows下方导航栏，直接搜索spyder，然后打开。</li><li>默认是暗黑色主题，需要修改按照文章修改即可：<code>Tools-&gt;Preference-&gt;Appearance</code>，然后修改<code>Interface theme</code>为<code>light</code>，<code>Syntax highlight theme</code>为<code>Spyder</code>，然后Spyder提示你要重启，点击yes确认。重启后的Spyder界面如下：<br><img src="/img/windows+install+Anaconda/Spyder_light.png"></li></ol><h3 id="3-2-运行测试程序"><a href="#3-2-运行测试程序" class="headerlink" title="3.2 运行测试程序"></a>3.2 运行测试程序</h3><ol><li>将文章中的测试程序复制到左边的窗口:<code>temp.py</code>，<code>crtl+s</code>保存一下，按<code>F5</code>运行或者点击上面的Run file按钮，得到的结果可以在右下角的Console控制台输出中查看。</li><li>然而，我没有得到预期的图像，反而得到了一个error，如下<br><img src="/img/windows+install+Anaconda/test_err.png"></li><li>搜索一下这个TypeError的内容，得到修改方法：将代码里面的<code>gca</code>改成<code>add_subplot</code>。</li><li>重新保存文件并运行，Console中出现一个Important提示，图像已经在plots中展示了。</li><li>要看到图像的话，就在右上的窗口下面，点击<code>Plots</code>，即可看到程序绘制的3D图像。</li><li>展示一下最后的结果：<br><img src="/img/windows+install+Anaconda/results.png"></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>python</category>
+      
+      <category>环境搭建</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>大学计算基础</tag>
+      
+      <tag>环境搭建</tag>
+      
+      <tag>Anaconda</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>网络交换原理和系统设计实验报告</title>
     <link href="/2024/09/18/%E7%BD%91%E7%BB%9C%E4%BA%A4%E6%8D%A2%E5%8E%9F%E7%90%86%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/"/>
     <url>/2024/09/18/%E7%BD%91%E7%BB%9C%E4%BA%A4%E6%8D%A2%E5%8E%9F%E7%90%86%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/</url>
