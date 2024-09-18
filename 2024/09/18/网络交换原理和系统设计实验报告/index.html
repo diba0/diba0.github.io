@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://diba0.github.io/img/wljhylyxtsj/topo.png">
 <meta property="article:published_time" content="2024-09-18T06:46:45.000Z">
-<meta property="article:modified_time" content="2024-09-18T07:00:58.096Z">
+<meta property="article:modified_time" content="2024-09-18T07:11:35.343Z">
 <meta property="article:author" content="diba0">
 <meta property="article:tag" content="实验报告">
 <meta property="article:tag" content="sdn">
@@ -239,7 +239,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6k 字
+          5.9k 字
         
       </span>
     
@@ -250,7 +250,7 @@
         
         
         
-          50 分钟
+          49 分钟
         
       </span>
     
@@ -450,42 +450,18 @@
 <h4 id="5-1-结果展示"><a href="#5-1-结果展示" class="headerlink" title="5.1 结果展示"></a>5.1 结果展示</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;这部分只能展示一下iperf测试的数据结果、数据库保存的流速信息、交换机2上的meter表的某个时间的限速信息。<br><strong>note</strong>：修改了一下<code>afqos.py</code>，把数据库里一些空字段（这个是用在<code>flow_rate.py</code>里面的）删除了。<br>实验中各个流预分配带宽均为：8000，6000，4000，2000；各个流的实际流速是根据大致流速和实验时间的最小二乘算法估计值，在预设置的大致流速左右波动。</p>
 <ol>
 <li>各个流的大致流速：7000，5000，3000，1000<ol>
-<li>aqos算法，<div>
-![](img/wljhylyxtsj/iperf_7_5_3_1.png)
-![](img/wljhylyxtsj/mysql_7_5_3_1.png)
-![](img/wljhylyxtsj/meter_7_5_3_1.png)
-</div></li>
-<li>afqos算法，<div>
-![](img/wljhylyxtsj/iperf_f_7_5_3_1.png)
-![](img/wljhylyxtsj/mysql_f_7_5_3_1.png) {width=50%}
-![](img/wljhylyxtsj/meter_f_7_5_3_1.png) {width=40%}
-</div></li>
+<li>aqos算法， <div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>afqos算法，<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
 </ol>
 </li>
 <li>各个流的大致流速：8000，6000，4000，2000<ol>
-<li>aqos算法<div>
-![](img/wljhylyxtsj/iperf_8_6_4_2.png) {width=80%}
-![](img/wljhylyxtsj/mysql_8_6_4_2.png) {width=50%}
-![](img/wljhylyxtsj/meter_8_6_4_2.png) {width=45%}
-</div></li>
-<li>afqos算法<div>f
-![](img/wljhylyxtsj/iperf_f_8_6_4_2.png) {width=80%}
-![](img/wljhylyxtsj/mysql_f_8_6_4_2.png) {width=50%}
-![](img/wljhylyxtsj/meter_f_8_6_4_2.png) {width=40%}
-</div></li>
+<li>aqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>afqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
 </ol>
 </li>
 <li>各个流的大致流速：9000，7000，5000，3000<ol>
-<li>aqos算法<div>
-![](img/wljhylyxtsj/iperf_9_7_5_3.png) {width=80%}
-![](img/wljhylyxtsj/mysql_9_7_5_3.png) {width=50%}
-![](img/wljhylyxtsj/meter_9_7_5_3.png) {width=45%}
-</div></li>
-<li>afqos算法<div>
-![](img/wljhylyxtsj/iperf_f_9_7_5_3.png) {width=80%}
-![](img/wljhylyxtsj/mysql_f_9_7_5_3.png) {width=50%}
-![](img/wljhylyxtsj/meter_f_9_7_5_3.png) {width=45%}
-</div></li>
+<li>aqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>afqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
 </ol>
 </li>
 </ol>
