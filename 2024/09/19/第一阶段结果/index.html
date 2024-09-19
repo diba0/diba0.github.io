@@ -19,26 +19,24 @@
   <meta name="author" content="diba0">
   <meta name="keywords" content="blog, life, work">
   
-    <meta name="description" content="一、摘要参考知士荟大学计算机基础空间文章Windows系统安装MySQL，记录本人安装MySQL的过程。下文中提到的“文章”均指代该链接对应的文章。">
+    <meta name="description" content="一、摘要本文主要展示项目第一阶段静态路由中环境搭建后的三种服务的功能验证，证明本人能够搭建邮件服务器、文件传输服务器以及实现双人实时视频。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Windows系统安装MySQL">
-<meta property="og:url" content="http://diba0.github.io/2024/09/18/Windows%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85MySQL/index.html">
+<meta property="og:title" content="第一阶段结果">
+<meta property="og:url" content="http://diba0.github.io/2024/09/19/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/index.html">
 <meta property="og:site_name" content="diba0&#39;s blog">
-<meta property="og:description" content="一、摘要参考知士荟大学计算机基础空间文章Windows系统安装MySQL，记录本人安装MySQL的过程。下文中提到的“文章”均指代该链接对应的文章。">
+<meta property="og:description" content="一、摘要本文主要展示项目第一阶段静态路由中环境搭建后的三种服务的功能验证，证明本人能够搭建邮件服务器、文件传输服务器以及实现双人实时视频。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://diba0.github.io/img/windows+install+MySQL/MySQL_8.2_Command_Line_Client.png">
-<meta property="article:published_time" content="2024-09-18T08:43:58.000Z">
-<meta property="article:modified_time" content="2024-09-18T09:25:17.207Z">
+<meta property="og:image" content="http://diba0.github.io/img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/topo.jpg">
+<meta property="article:published_time" content="2024-09-19T06:47:51.000Z">
+<meta property="article:modified_time" content="2024-09-19T08:05:29.080Z">
 <meta property="article:author" content="diba0">
-<meta property="article:tag" content="大学计算基础">
-<meta property="article:tag" content="环境搭建">
-<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="杂项">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://diba0.github.io/img/windows+install+MySQL/MySQL_8.2_Command_Line_Client.png">
+<meta name="twitter:image" content="http://diba0.github.io/img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/topo.jpg">
   
   
   
-  <title>Windows系统安装MySQL - diba0&#39;s blog</title>
+  <title>第一阶段结果 - diba0&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -216,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Windows系统安装MySQL"></span>
+            <span id="subtitle" data-typed-text="第一阶段结果"></span>
           
         </div>
 
@@ -227,8 +225,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-09-18 16:43" pubdate>
-          2024年9月18日 下午
+        <time datetime="2024-09-19 14:47" pubdate>
+          2024年9月19日 下午
         </time>
       </span>
     
@@ -239,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          426 字
+          451 字
         
       </span>
     
@@ -287,21 +285,43 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Windows系统安装MySQL</h1>
+            <h1 id="seo-header">第一阶段结果</h1>
             
             
               <div class="markdown-body">
                 
-                <h2 id="一、摘要"><a href="#一、摘要" class="headerlink" title="一、摘要"></a>一、摘要</h2><p>参考知士荟大学计算机基础空间文章<a target="_blank" rel="noopener" href="https://www.learnerhub.net/#/spaces/422/resources-docs/21946">Windows系统安装MySQL</a>，记录本人安装MySQL的过程。下文中提到的“文章”均指代该链接对应的文章。</p>
+                <h2 id="一、摘要"><a href="#一、摘要" class="headerlink" title="一、摘要"></a>一、摘要</h2><p>本文主要展示项目第一阶段静态路由中环境搭建后的三种服务的功能验证，证明本人能够搭建邮件服务器、文件传输服务器以及实现双人实时视频。</p>
 <span id="more"></span>
 
-<h2 id="二、安装过程"><a href="#二、安装过程" class="headerlink" title="二、安装过程"></a>二、安装过程</h2><h3 id="2-1-下载MySQL安装包"><a href="#2-1-下载MySQL安装包" class="headerlink" title="2.1 下载MySQL安装包"></a>2.1 下载MySQL安装包</h3><p>文章下载的是8.2版本，那我也下载8.2版本，但是在<a target="_blank" rel="noopener" href="https://dev.mysql.com/downloads/mysql/">官网</a>，默认没有8.2。那就点击Archives，然后选择对应版本下载，如下：<br><img src="/img/windows+install+MySQL/MySQL_download.png" srcset="/img/loading.gif" lazyload></p>
-<h3 id="2-2-安装MySQL"><a href="#2-2-安装MySQL" class="headerlink" title="2.2 安装MySQL"></a>2.2 安装MySQL</h3><p>点击下载好的msi文件，开始安装。按照文章安装即可，基本就是点next，只是需要修改安装路径为<code>D:\MySQL Server8.2\</code>即可，安装完成后进入配置。<br>配置中也只是填了一个密码，然后一路next,finish即可。</p>
-<h3 id="2-3-验证安装"><a href="#2-3-验证安装" class="headerlink" title="2.3 验证安装"></a>2.3 验证安装</h3><ol>
-<li>windows11下直接用导航栏搜索mysql，选择命令行客户端即可<br><img src="/img/windows+install+MySQL/get_mysql.png" srcset="/img/loading.gif" lazyload><br>但是，我运行只是命令行一闪而过，并没有要我输入密码。</li>
-<li>没办法，我直接到mysql的安装位置，鼠标右键，选择在终端打开。然后使用命令登录：<code>.\mysql.exe -u root -p</code>。然后输入密码，成功了，如下:<br><img src="/img/windows+install+MySQL/mysql_terminal_login.png" srcset="/img/loading.gif" lazyload><br>这说明我的mysql没有问题，那应该是MySQL 8.2 Command Line Client的问题</li>
-<li>查看一下MySQL 8.2 Command Line Client的属性，发现它的目标是<code>&quot;D:\MySQL Server 8.2\bin\mysql.exe&quot; &quot;--defaults-file=D:\MySQL Server 8.2\my.ini&quot; &quot;-uroot&quot; &quot;-p&quot;</code><br>但是，奇怪的是，我的<code>D:\MySQL Server 8.2\</code>目录下并没有<code>my.ini</code>配置文件。<br>这么说的话，应该是这个快捷方式出了问题，修改方法：将<code>&quot;--defaults-file=D:\MySQL Server 8.2\my.ini&quot;</code>删除，应用并确定。</li>
-<li>重新点击MySQL 8.2 Command Line Client，OK没有问题，输入密码然后显示数据库，结果如下<br><img src="/img/windows+install+MySQL/MySQL_8.2_Command_Line_Client.png" srcset="/img/loading.gif" lazyload></li>
+<h2 id="二、网络拓扑"><a href="#二、网络拓扑" class="headerlink" title="二、网络拓扑"></a>二、网络拓扑</h2><p><img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/topo.jpg" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>树莓派S02:<ul>
+<li>eth0: 192.168.0.2     –&gt;     联网ip</li>
+<li>eth1: 10.0.6.2        –&gt;     内网ip</li>
+</ul>
+</li>
+<li>树莓派S03:<ul>
+<li>eth0: 192.168.0.3     –&gt;     联网ip</li>
+<li>eth1: 10.0.7.2        –&gt;     内网ip</li>
+</ul>
+</li>
+</ul>
+<h2 id="三、邮件服务器"><a href="#三、邮件服务器" class="headerlink" title="三、邮件服务器"></a>三、邮件服务器</h2><h3 id="3-1-简要介绍"><a href="#3-1-简要介绍" class="headerlink" title="3.1 简要介绍"></a>3.1 简要介绍</h3><p>postfix+dovecot+mysql搭建的邮件服务器（搭建过程参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/renweihang/p/7988591.html">Postfix+Dovecot+MySQL搭建邮件服务器</a>），部署树莓派S02；同时树莓派S02和S03上安装有邮件客户端Thunderbird，双方通过Thunderbird与邮件服务器通信，通过内网（即core的虚拟网络）收发邮件。</p>
+<h3 id="3-2-收发邮件结果"><a href="#3-2-收发邮件结果" class="headerlink" title="3.2 收发邮件结果"></a>3.2 收发邮件结果</h3><p>S02连接到邮件服务器并且收发邮件<br><img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/mail.jpg" srcset="/img/loading.gif" lazyload><br>相应的网络流量是走中间的n3的路由</p>
+<h2 id="四、ftp服务器"><a href="#四、ftp服务器" class="headerlink" title="四、ftp服务器"></a>四、ftp服务器</h2><h3 id="4-1-简要介绍"><a href="#4-1-简要介绍" class="headerlink" title="4.1 简要介绍"></a>4.1 简要介绍</h3><p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/2201_75288693/article/details/139508726">保姆级讲解 Linux下FTP服务器的搭建、配置与管理</a>，使用本地用户的方式。配置了两个本地用户：ftpuser1和ftpuser2。</p>
+<h3 id="4-2上传和下载文件："><a href="#4-2上传和下载文件：" class="headerlink" title="4.2上传和下载文件："></a>4.2上传和下载文件：</h3><p>S02连接到ftp服务器并进行文件操作：<br><img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/ftp.png" srcset="/img/loading.gif" lazyload><br>相应的网络流量是走上面的n2的路由</p>
+<h2 id="五、视频通话"><a href="#五、视频通话" class="headerlink" title="五、视频通话"></a>五、视频通话</h2><h3 id="5-1-简要介绍"><a href="#5-1-简要介绍" class="headerlink" title="5.1 简要介绍"></a>5.1 简要介绍</h3><p>起初是用webrt实现视频通话的，但是webrtc无法实现指定树莓派进行视频传输的端口。后面又用gstreamer在两个树莓派上进行推流和拉流，虽然可以指定传输端口，但是音频接收出现问题。</p>
+<h3 id="5-2-视频通话结果"><a href="#5-2-视频通话结果" class="headerlink" title="5.2 视频通话结果"></a>5.2 视频通话结果</h3><ol>
+<li><p>webrtc:</p>
+<p><img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/w_s02.video.jpg" srcset="/img/loading.gif" lazyload><br>相应的视频流是走最上面的n2的路由（默认的）</p>
+</li>
+<li><p>gstreamer：</p>
+<ul>
+<li>S02:<br> <img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/g_s02_video.jpg" srcset="/img/loading.gif" lazyload></li>
+<li>S03:<br> <img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/g_s03_video.jpg" srcset="/img/loading.gif" lazyload></li>
+<li>相应的流量是走下面的n4的路由</li>
+</ul>
+</li>
 </ol>
 
                 
@@ -321,15 +341,8 @@
     
       <span class="category-chain">
         
-  <a href="/categories/MySQL/" class="category-chain-item">MySQL</a>
+  <a href="/categories/%E5%85%B6%E4%BB%96/" class="category-chain-item">其他</a>
   
-  
-    <span>></span>
-    
-  <a href="/categories/MySQL/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" class="category-chain-item">环境搭建</a>
-  
-  
-
   
 
       </span>
@@ -343,11 +356,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E5%A4%A7%E5%AD%A6%E8%AE%A1%E7%AE%97%E5%9F%BA%E7%A1%80/" class="print-no-link">#大学计算基础</a>
-      
-        <a href="/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" class="print-no-link">#环境搭建</a>
-      
-        <a href="/tags/MySQL/" class="print-no-link">#MySQL</a>
+        <a href="/tags/%E6%9D%82%E9%A1%B9/" class="print-no-link">#杂项</a>
       
     </div>
   
@@ -359,8 +368,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Windows系统安装MySQL</div>
-      <div>http://diba0.github.io/2024/09/18/Windows系统安装MySQL/</div>
+      <div>第一阶段结果</div>
+      <div>http://diba0.github.io/2024/09/19/第一阶段结果/</div>
     </div>
     <div class="license-meta">
       
@@ -372,7 +381,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年9月18日</div>
+          <div>2024年9月19日</div>
         </div>
       
       
@@ -404,18 +413,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/09/19/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/" title="第一阶段结果">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">第一阶段结果</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/09/18/Windows%E4%B8%8B%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8Anaconda/" title="Windows下安装使用Anaconda">
-                        <span class="hidden-mobile">Windows下安装使用Anaconda</span>
+                      <a href="/2024/09/18/Windows%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85MySQL/" title="Windows系统安装MySQL">
+                        <span class="hidden-mobile">Windows系统安装MySQL</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

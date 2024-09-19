@@ -4,6 +4,31 @@
   
   
   <entry>
+    <title>第一阶段结果</title>
+    <link href="/2024/09/19/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/"/>
+    <url>/2024/09/19/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/</url>
+    
+    <content type="html"><![CDATA[<h2 id="一、摘要"><a href="#一、摘要" class="headerlink" title="一、摘要"></a>一、摘要</h2><p>本文主要展示项目第一阶段静态路由中环境搭建后的三种服务的功能验证，证明本人能够搭建邮件服务器、文件传输服务器以及实现双人实时视频。</p><span id="more"></span><h2 id="二、网络拓扑"><a href="#二、网络拓扑" class="headerlink" title="二、网络拓扑"></a>二、网络拓扑</h2><p><img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/topo.jpg"></p><ul><li>树莓派S02:<ul><li>eth0: 192.168.0.2     –&gt;     联网ip</li><li>eth1: 10.0.6.2        –&gt;     内网ip</li></ul></li><li>树莓派S03:<ul><li>eth0: 192.168.0.3     –&gt;     联网ip</li><li>eth1: 10.0.7.2        –&gt;     内网ip</li></ul></li></ul><h2 id="三、邮件服务器"><a href="#三、邮件服务器" class="headerlink" title="三、邮件服务器"></a>三、邮件服务器</h2><h3 id="3-1-简要介绍"><a href="#3-1-简要介绍" class="headerlink" title="3.1 简要介绍"></a>3.1 简要介绍</h3><p>postfix+dovecot+mysql搭建的邮件服务器（搭建过程参考：<a href="https://www.cnblogs.com/renweihang/p/7988591.html">Postfix+Dovecot+MySQL搭建邮件服务器</a>），部署树莓派S02；同时树莓派S02和S03上安装有邮件客户端Thunderbird，双方通过Thunderbird与邮件服务器通信，通过内网（即core的虚拟网络）收发邮件。</p><h3 id="3-2-收发邮件结果"><a href="#3-2-收发邮件结果" class="headerlink" title="3.2 收发邮件结果"></a>3.2 收发邮件结果</h3><p>S02连接到邮件服务器并且收发邮件<br><img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/mail.jpg"><br>相应的网络流量是走中间的n3的路由</p><h2 id="四、ftp服务器"><a href="#四、ftp服务器" class="headerlink" title="四、ftp服务器"></a>四、ftp服务器</h2><h3 id="4-1-简要介绍"><a href="#4-1-简要介绍" class="headerlink" title="4.1 简要介绍"></a>4.1 简要介绍</h3><p>参考：<a href="https://blog.csdn.net/2201_75288693/article/details/139508726">保姆级讲解 Linux下FTP服务器的搭建、配置与管理</a>，使用本地用户的方式。配置了两个本地用户：ftpuser1和ftpuser2。</p><h3 id="4-2上传和下载文件："><a href="#4-2上传和下载文件：" class="headerlink" title="4.2上传和下载文件："></a>4.2上传和下载文件：</h3><p>S02连接到ftp服务器并进行文件操作：<br><img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/ftp.png"><br>相应的网络流量是走上面的n2的路由</p><h2 id="五、视频通话"><a href="#五、视频通话" class="headerlink" title="五、视频通话"></a>五、视频通话</h2><h3 id="5-1-简要介绍"><a href="#5-1-简要介绍" class="headerlink" title="5.1 简要介绍"></a>5.1 简要介绍</h3><p>起初是用webrt实现视频通话的，但是webrtc无法实现指定树莓派进行视频传输的端口。后面又用gstreamer在两个树莓派上进行推流和拉流，虽然可以指定传输端口，但是音频接收出现问题。</p><h3 id="5-2-视频通话结果"><a href="#5-2-视频通话结果" class="headerlink" title="5.2 视频通话结果"></a>5.2 视频通话结果</h3><ol><li><p>webrtc:</p><p><img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/w_s02.video.jpg"><br>相应的视频流是走最上面的n2的路由（默认的）</p></li><li><p>gstreamer：</p><ul><li>S02:<br> <img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/g_s02_video.jpg"></li><li>S03:<br> <img src="/../img/%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%E7%BB%93%E6%9E%9C/g_s03_video.jpg"></li><li>相应的流量是走下面的n4的路由</li></ul></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>其他</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>杂项</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Windows系统安装MySQL</title>
     <link href="/2024/09/18/Windows%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85MySQL/"/>
     <url>/2024/09/18/Windows%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85MySQL/</url>
