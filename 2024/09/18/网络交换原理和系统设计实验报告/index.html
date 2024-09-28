@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://diba0.github.io/img/wljhylyxtsj/topo.png">
 <meta property="article:published_time" content="2024-09-18T06:46:45.000Z">
-<meta property="article:modified_time" content="2024-09-18T07:11:35.343Z">
+<meta property="article:modified_time" content="2024-09-28T12:21:12.497Z">
 <meta property="article:author" content="diba0">
 <meta property="article:tag" content="实验报告">
 <meta property="article:tag" content="sdn">
@@ -420,48 +420,48 @@
 </li>
 </ol>
 <h4 id="4-2-实验设计"><a href="#4-2-实验设计" class="headerlink" title="4.2 实验设计"></a>4.2 实验设计</h4><ol>
-<li>下载代码<br>在文章出处可以找到下载链接：<a target="_blank" rel="noopener" href="https://zenodo.org/records/10184077%EF%BC%8C">https://zenodo.org/records/10184077，</a> 进入该网页后，找到对应的msc_code-main.zip下载即可。<br>解压后对应的目录树如下，每个文件的功能可以在README.md中查看。<br><img src="/img/wljhylyxtsj/tree.png" srcset="/img/loading.gif" lazyload alt="tree"><ul>
+<li>下载代码<br>在文章出处可以找到下载链接：<a target="_blank" rel="noopener" href="https://zenodo.org/records/10184077%EF%BC%8C">https://zenodo.org/records/10184077，</a> 进入该网页后，找到对应的msc_code-main.zip下载即可。<br>解压后对应的目录树如下，每个文件的功能可以在README.md中查看。<br><img src="/../img/wljhylyxtsj/tree.png" srcset="/img/loading.gif" lazyload alt="tree"><ul>
 <li><code>research_code</code>包含了实验所需代码，<code>afqos.py</code>是带宽分配算法，<code>flow_rate.py</code>是带宽近似算法，<code>qostopo.py</code>是拓扑代码。</li>
 <li><code>production_code/allocation_app.py</code>则是经过测试的可以作为完整功能的Ryu应用。</li>
 </ul>
 </li>
-<li>配置mysql，因为<code>flow_rate.py</code>和<code>afqos.py</code>都使用了mysql来存储流量信息，因此需要先安装并配置mysql。可以参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/LogosTR_/article/details/125602116">https://blog.csdn.net/LogosTR_/article/details/125602116</a> 。然后需要将对应的用户名和密码进行修改，创建一个新的数据库grafana，我的结果如下。<br><img src="/img/wljhylyxtsj/mysql.png" srcset="/img/loading.gif" lazyload alt="mysql"></li>
+<li>配置mysql，因为<code>flow_rate.py</code>和<code>afqos.py</code>都使用了mysql来存储流量信息，因此需要先安装并配置mysql。可以参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/LogosTR_/article/details/125602116">https://blog.csdn.net/LogosTR_/article/details/125602116</a> 。然后需要将对应的用户名和密码进行修改，创建一个新的数据库grafana，我的结果如下。<br><img src="/../img/wljhylyxtsj/mysql.png" srcset="/img/loading.gif" lazyload alt="mysql"></li>
 <li>运行代码。<ol>
 <li>因为<code>qostopo.py</code>使用了Ryu的REST API，因此需要运行<code>ryu/ryu/app/ofctl_rest.py</code>，可以将其复制到<code>research_code</code>目录下，同时需要修改<code>qostopo.py</code>的IP地址位ubuntu的IP。启动ryu控制器:<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">ryu-manager afqos.py ofctl_rest.py<br></code></pre></td></tr></table></figure>
-<img src="/img/wljhylyxtsj/ryu-manager.png" srcset="/img/loading.gif" lazyload alt="ryu-manager"></li>
+<img src="/../img/wljhylyxtsj/ryu-manager.png" srcset="/img/loading.gif" lazyload alt="ryu-manager"></li>
 <li>运行拓扑：<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">sudo</span> python3 qostopo.py<br></code></pre></td></tr></table></figure>
-<img src="/img/wljhylyxtsj/qostopo.png" srcset="/img/loading.gif" lazyload alt="qostopo"></li>
-<li>代码每一次测试需要5min，每次对交换机2（模拟边缘路由器）进行meter表限速(实际拓扑如下)。<br><img src="/img/wljhylyxtsj/topo.png" srcset="/img/loading.gif" lazyload></li>
+<img src="/../img/wljhylyxtsj/qostopo.png" srcset="/img/loading.gif" lazyload alt="qostopo"></li>
+<li>代码每一次测试需要5min，每次对交换机2（模拟边缘路由器）进行meter表限速(实际拓扑如下)。<br><img src="/../img/wljhylyxtsj/topo.png" srcset="/img/loading.gif" lazyload></li>
 <li>试了一下，对于<code>qostopo.py</code>有两个问题：首先h2到h6的iperf测试出现问题，h2似乎将h7的IP作为h6的IP；然后在测试后半段，传输的数据都变成了0。对于<code>afqos.py</code>有一个问题：数据库里面并没有任何流信息。</li>
 </ol>
 </li>
 <li>debug：<ol>
 <li>我尝试直接输出每个主机的IP，然后发现确实h6和h7的IP是一样的，查看前面的代码发现，原来作者将h6的IP设置错了，应该是192.168.0.132才对。其实从前面的ping测试h7有问题也应该想到的，不知道作者做实验的时候发现没有。修改了一下，h6果然有了输出。</li>
-<li>然后就是，测试后半段的时候，iperf得到的输出显示的带宽很低，我就感觉是meter表限速的问题，应该是把速度限制的太低了。查看<code>ofctl_rest.py</code>，里面就有meter表配置限速的REST API地址。查看发现，meter表的限速的确十分不合理。<img src=img/wljhylyxtsj/meterconfig_2_1.png width="50%"></li>
+<li>然后就是，测试后半段的时候，iperf得到的输出显示的带宽很低，我就感觉是meter表限速的问题，应该是把速度限制的太低了。查看<code>ofctl_rest.py</code>，里面就有meter表配置限速的REST API地址。查看发现，meter表的限速的确十分不合理。<img src=../img/wljhylyxtsj/meterconfig_2_1.png width="50%"></li>
 <li>后面试着修改了一下<code>qostopo.py</code>，只测一次60s时间，然后把client端的带宽都记录下，用作和server端对比。后来理解了，原来是因为client每2s发一次请求，后面的请求比如58-60s的请求，前面0-58s就没有数据，但是iperf还是显示了0-58s的传输带宽，这部分当然是0了。因此，每一次请求实际的测出来的带宽应该是最后2s显示的带宽，而不是整个时间的带宽。</li>
 <li>但是，meter表的带宽限速还是有问题，这个需要看<code>afqos.py</code>，具体分析带宽分配算法的运行过程。分析后发现，默认是aqos算法，而且初始的带宽分配也和<code>qostopo.py</code>不同，修改一下，重新运行。得到的meter表就比较合理，最后meter表的限速也变成了最初的配置。但是每条流实际的需要带宽和测出的带宽还有差距，感觉算法应该存在一定问题。</li>
 <li>研究了一下<code>afqos.py</code>，发现还是有点问题，比如数据库的表前面是qos，后面又有个flow，我就统一改成了qos。而且表初始化时没有bw列，但是插入数据时又有bw列，我后面就加了上去。总体来看，应该是作者在测试时，配置的数据库不同，（<code>afqos.py</code>是qos表，<code>flow_rate.py</code>是flow表）代码打包上传后，没有仔细修改查看。</li>
 </ol>
 </li>
-<li>最后，也是在数据库中看到了afqos算法在带宽分配为8000，6000，4000，2000时的数据。<br><img src="/img/wljhylyxtsj/qos_table_test.png" srcset="/img/loading.gif" lazyload alt="qos_table_test"></li>
+<li>最后，也是在数据库中看到了afqos算法在带宽分配为8000，6000，4000，2000时的数据。<br><img src="/../img/wljhylyxtsj/qos_table_test.png" srcset="/img/loading.gif" lazyload alt="qos_table_test"></li>
 <li>考虑了一下，还是直接试试<code>production_code/allocation_app.py</code>，毕竟作者说这部分代码是经过测试了的。但是这个代码是没有其他数据的（比如，s2实际的传输字节），只能通过iperf查看测试的带宽情况。所以后面的结果展示用的还是<code>afqos.py</code>的结果。</li>
 </ol>
 <h3 id="5-实验结果"><a href="#5-实验结果" class="headerlink" title="5. 实验结果"></a>5. 实验结果</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;由于缺乏合理的数据分析手段，得到的数据结果（有iperf的测试数据，数据库保存的各个流的流速信息），还有就是算法实际分配的带宽（这部分难以实时收集，或者对应每一秒的流速，因为REST API的内容是实时更新的，而且最后的结果显示的预配置的结果）。我虽然可以收集这些信息，但是要想作者一样进行前4s的带宽分配对比，还是比较困难。同时吞吐量的对比我也没想到怎么做，因为要知道预期的吞吐量和实际的吞吐量，这两个应该对应于meter表配置的流速和实际的流速，前面说过了，因为实验测试很快，我无法得到meter表每一秒的流速。</p>
 <h4 id="5-1-结果展示"><a href="#5-1-结果展示" class="headerlink" title="5.1 结果展示"></a>5.1 结果展示</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;这部分只能展示一下iperf测试的数据结果、数据库保存的流速信息、交换机2上的meter表的某个时间的限速信息。<br><strong>note</strong>：修改了一下<code>afqos.py</code>，把数据库里一些空字段（这个是用在<code>flow_rate.py</code>里面的）删除了。<br>实验中各个流预分配带宽均为：8000，6000，4000，2000；各个流的实际流速是根据大致流速和实验时间的最小二乘算法估计值，在预设置的大致流速左右波动。</p>
 <ol>
 <li>各个流的大致流速：7000，5000，3000，1000<ol>
-<li>aqos算法， <div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
-<li>afqos算法，<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>aqos算法， <div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>afqos算法，<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
 </ol>
 </li>
 <li>各个流的大致流速：8000，6000，4000，2000<ol>
-<li>aqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
-<li>afqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>aqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>afqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
 </ol>
 </li>
 <li>各个流的大致流速：9000，7000，5000，3000<ol>
-<li>aqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
-<li>afqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/iperf_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/img/wljhylyxtsj/mysql_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/img/wljhylyxtsj/meter_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>aqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>afqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
 </ol>
 </li>
 </ol>
