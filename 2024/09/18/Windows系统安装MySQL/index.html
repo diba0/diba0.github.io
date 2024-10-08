@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://diba0.github.io/img/windows+install+MySQL/MySQL_8.2_Command_Line_Client.png">
 <meta property="article:published_time" content="2024-09-18T08:43:58.000Z">
-<meta property="article:modified_time" content="2024-09-28T12:14:34.487Z">
+<meta property="article:modified_time" content="2024-10-08T13:20:16.773Z">
 <meta property="article:author" content="diba0">
 <meta property="article:tag" content="大学计算基础">
 <meta property="article:tag" content="环境搭建">
@@ -239,7 +239,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          426 字
+          442 字
         
       </span>
     
@@ -292,7 +292,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    本文最后更新于 2024年9月28日 晚上
+                    本文最后更新于 2024年10月8日 晚上
                   
                 
               </p>
@@ -310,6 +310,10 @@
 <li>没办法，我直接到mysql的安装位置，鼠标右键，选择在终端打开。然后使用命令登录：<code>.\mysql.exe -u root -p</code>。然后输入密码，成功了，如下:<br><img src="/../img/windows+install+MySQL/mysql_terminal_login.png" srcset="/img/loading.gif" lazyload><br>这说明我的mysql没有问题，那应该是MySQL 8.2 Command Line Client的问题</li>
 <li>查看一下MySQL 8.2 Command Line Client的属性，发现它的目标是<code>&quot;D:\MySQL Server 8.2\bin\mysql.exe&quot; &quot;--defaults-file=D:\MySQL Server 8.2\my.ini&quot; &quot;-uroot&quot; &quot;-p&quot;</code><br>但是，奇怪的是，我的<code>D:\MySQL Server 8.2\</code>目录下并没有<code>my.ini</code>配置文件。<br>这么说的话，应该是这个快捷方式出了问题，修改方法：将<code>&quot;--defaults-file=D:\MySQL Server 8.2\my.ini&quot;</code>删除，应用并确定。</li>
 <li>重新点击MySQL 8.2 Command Line Client，OK没有问题，输入密码然后显示数据库，结果如下<br><img src="/../img/windows+install+MySQL/MySQL_8.2_Command_Line_Client.png" srcset="/img/loading.gif" lazyload></li>
+</ol>
+<h3 id="2-4-添加环境变量"><a href="#2-4-添加环境变量" class="headerlink" title="2.4 添加环境变量"></a>2.4 添加环境变量</h3><ol>
+<li>添加环境变量<br><img src="/../img/windows+install+MySQL/mysql_path.png" srcset="/img/loading.gif" lazyload></li>
+<li>验证：<br><img src="/../img/windows+install+MySQL/mysql_login_end.png" srcset="/img/loading.gif" lazyload></li>
 </ol>
 
                 
