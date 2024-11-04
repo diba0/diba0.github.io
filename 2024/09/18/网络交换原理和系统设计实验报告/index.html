@@ -1,0 +1,896 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="diba0">
+  <meta name="keywords" content="blog, life, work">
+  
+    <meta name="description" content="1. 引言1.1 背景 软件定义网络（SDN）： 定义：软件定义网络（SDN）是一种新兴的网络架构，它将网络控制层与数据转发层分离。传统网络架构中，这两者紧密耦合，导致网络配置和管理复杂且灵活性不足。而在SDN中，网络控制由一个集中化的软件控制器管理，这使得网络管理员能够通过编程方式动态地控制网络行为。 核心特点：网络虚拟化、集中管理和开放接口，使得网络资源的配置、监控和管理更加高效和灵活。 计量">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络交换原理和系统设计实验报告">
+<meta property="og:url" content="http://diba0.github.io/2024/09/18/%E7%BD%91%E7%BB%9C%E4%BA%A4%E6%8D%A2%E5%8E%9F%E7%90%86%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/index.html">
+<meta property="og:site_name" content="diba0&#39;s blog">
+<meta property="og:description" content="1. 引言1.1 背景 软件定义网络（SDN）： 定义：软件定义网络（SDN）是一种新兴的网络架构，它将网络控制层与数据转发层分离。传统网络架构中，这两者紧密耦合，导致网络配置和管理复杂且灵活性不足。而在SDN中，网络控制由一个集中化的软件控制器管理，这使得网络管理员能够通过编程方式动态地控制网络行为。 核心特点：网络虚拟化、集中管理和开放接口，使得网络资源的配置、监控和管理更加高效和灵活。 计量">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://diba0.github.io/img/wljhylyxtsj/topo.png">
+<meta property="article:published_time" content="2024-09-18T06:46:45.000Z">
+<meta property="article:modified_time" content="2024-10-21T00:38:54.871Z">
+<meta property="article:author" content="diba0">
+<meta property="article:tag" content="sdn">
+<meta property="article:tag" content="实验报告">
+<meta property="article:tag" content="qos">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://diba0.github.io/img/wljhylyxtsj/topo.png">
+  
+  
+  
+  <title>网络交换原理和系统设计实验报告 - diba0&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"diba0.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>diba0&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="网络交换原理和系统设计实验报告"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-18 14:46" pubdate>
+          2024年9月18日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          49 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">网络交换原理和系统设计实验报告</h1>
+            
+              <p id="updated-time" class="note note-info" style="">
+                
+                  
+                    本文最后更新于 2024年10月21日 早上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="1-引言"><a href="#1-引言" class="headerlink" title="1. 引言"></a>1. 引言</h3><h4 id="1-1-背景"><a href="#1-1-背景" class="headerlink" title="1.1 背景"></a>1.1 背景</h4><ol>
+<li>软件定义网络（SDN）：<ol>
+<li>定义：软件定义网络（SDN）是一种新兴的网络架构，它将网络控制层与数据转发层分离。传统网络架构中，这两者紧密耦合，导致网络配置和管理复杂且灵活性不足。而在SDN中，网络控制由一个集中化的软件控制器管理，这使得网络管理员能够通过编程方式动态地控制网络行为。</li>
+<li>核心特点：网络虚拟化、集中管理和开放接口，使得网络资源的配置、监控和管理更加高效和灵活。</li>
+<li>计量（meter）表：在OpenFlow 1.3中，软件定义网络（SDN）引入了meter的概念，使得控制器能够根据特定的匹配字段和优先级对流量进行限速。meter表可以计算流速，当速率超过设置的限制时，对流应用不同的操作。</li>
+</ol>
+</li>
+<li>服务质量（Qos）：<ol>
+<li>定义：服务质量（QoS）是指网络在数据传输过程中所提供的性能保证，主要包括带宽、延迟、抖动和丢包率等指标，是一种可以根据不同流的优先级对其进行区别对待的机制。服务质量最初由国际电信联盟 (ITU) 于 1994 年定义（国际电信联盟 (ITU)，2008），它的目标是确保网络能够根据不同类型的流量需求进行有效管理，以满足用户和应用的性能要求。</li>
+<li>应用：在现代网络中，随着实时应用（如视频会议、在线游戏和VoIP等）的普及，对QoS的要求日益提高。这些应用通常对延迟和带宽的需求非常敏感，因此需要网络能够提供高质量的服务。</li>
+<li>方法：传统上，QoS 使用两种主要方法实现：集成服务（IntServ）和差异化服务（DiffServ）。IntServ 提供对系统的细粒度基于流的控制，并要求从源到目标的路径中的每个路由器都实现 IntServ。另一方面，DiffServ 是一个粗粒度的基于类的控制系统，用于将数据包分类和标记为特定类。</li>
+</ol>
+</li>
+</ol>
+<h4 id="1-2-论文概述"><a href="#1-2-论文概述" class="headerlink" title="1.2 论文概述"></a>1.2 论文概述</h4><ol>
+<li>论文信息<ul>
+<li>论文标题：Adaptive quality of service for packet loss reduction using OpenFlow meters.</li>
+<li>论文作者：Krishneel Deo, Kaylash Chaudhary and Mansour Assaf</li>
+<li>论文发表年份：April 4, 2024</li>
+<li>论文出处：<a target="_blank" rel="noopener" href="https://peerj.com/articles/cs-1848/">https://peerj.com/articles/cs-1848/</a></li>
+<li>DOI：10.7717&#x2F;peerj-cs.1848</li>
+</ul>
+</li>
+<li>论文内容<ul>
+<li>主要目标：解决OpenFlow Meter如何实现每条流上带宽分配和重分发的问题，重点关注在最为拥塞的、具有突发流量的交换机（例如：边缘路由器，edge router）上的流量，尝试最小化Qos流的丢包，并且通过利用其他流没有使用的带宽来满足高优先级流的要求。</li>
+<li>提出的算法或方法：针对最高拥塞交换机（例如边缘路由器）处的突发流的带宽分配和重新分配算法（AFQos）。在链路总带宽够用时，为借出带宽的流预留带宽，能够带宽重分配；在链路总带宽不够时，从BE流中获取带宽，分配给Qos流。</li>
+<li>实验简述：和AQos算法进行对比，试验了三种情况：链路没有完全利用、链路接近完全利用、链路拥塞，得到了两种算法在一定时间的带宽分配情况和吞吐量比值。</li>
+</ul>
+</li>
+</ol>
+<h3 id="2-相关工作"><a href="#2-相关工作" class="headerlink" title="2. 相关工作"></a>2. 相关工作</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;SDN已经解决了许多网络编程问题并且为管理网络提供了一个灵活的方法。例如，将SDN应用于一些场景下的负载均衡技术，使用SDN实现各种流量监控组件等。随着SDN的引入，Qos领域的研究工作也越来越丰富，下面介绍一些使用SDN解决Qos领域相关问题的工作。</p>
+<h4 id="2-1-文献综述"><a href="#2-1-文献综述" class="headerlink" title="2.1 文献综述"></a>2.1 文献综述</h4><p>下面列出了一部分参考文献的主要工作，具体内容参考原论文。</p>
+<ol>
+<li>针对特定应用的工作<ol>
+<li>提出一种在云平台上确保多用户的端到端Qos保证的方法，展示了一种从云提供商到用户的流量路径选择方式。</li>
+<li>提出一种编程网络设备来为多媒体应用提供相关的Qos需求的SDN框架，提供了优先级流的带宽保证和一种监控网络状态和资源等级的机制。</li>
+<li>提出一种带宽分配机制，使用机器学习对不同的流量进行分类，优先考虑数据中心的游戏流，以确保延迟敏感的游戏应用。</li>
+<li>推出一种解决方案，用于增强在OpenFlow网络中流式传输任务关键型视频数据的QoS性能。</li>
+</ol>
+</li>
+<li>将流量看作一个整体提供Qos方案<ol>
+<li>提出了一种提高数据中心网络之间链路利用率的方法。控制着流量的量、类型以及发送的频率。</li>
+<li>在SDN中实现了加权公平排队(WFQ)机制,以尝试减少网络拥塞；使用缓冲区来决定是否将数据包放入队列以实现流畅的流量</li>
+<li>提出了一个连接所有谷歌数据中心的专用广域网的设计和实现。通过根据优先级为不同应用进程分配带宽来解决带宽管理问题,目的是最大化平均带宽</li>
+<li>提出了一种带宽分配机制，通过用户定义的公平分配空闲带宽来最大化网络链路利用率。它使用最小-最大方案保证公平性。</li>
+</ol>
+</li>
+</ol>
+<ul>
+<li>2中工作与要复现论文的区别：复现的论文使用meter表实现如何将带宽分配给单个设备上的每个流，并在需要更多带宽时收回带宽，同时确保每个 QoS 类别的数据包丢失最少。</li>
+<li>与要复现论文最相近的论文：“Adaptive QoS for data transfers using software-defined networking.”论文中提出的AQos算法同样允许需要更多带宽的流获取其他流的空闲带宽，同时借出去的带宽也能在需要时返回。</li>
+<li>要复现论文的算法与AQos的区别：被借的流不会借用所有的带宽；未被借用的带宽分配给自己，即预留一些可增长的空间。</li>
+</ul>
+<h3 id="3-算法描述"><a href="#3-算法描述" class="headerlink" title="3. 算法描述"></a>3. 算法描述</h3><p>对于每个Qos类，</p>
+<ul>
+<li><p>如果当前速率小于预先配置的速率并且所有Qos类的当前速率之和小于预先配置速率之和，分配所有Qos类速率为预先配置的速率</p>
+</li>
+<li><p>如果当前速率大于预先配置的速率并且所有Qos类的当前速率之和大于预先配置速率之和，分配所有Qos类速率为预先配置的速率</p>
+</li>
+<li><p>如果某个Qos类当前速率大于预先配置的速率，存在另一个Qos类当前速率小于预先配置的速率，将另一个Qos类的空闲带宽分给该Qos类，即提升该Qos类的速率</p>
+</li>
+</ul>
+<h4 id="3-1-算法细节"><a href="#3-1-算法细节" class="headerlink" title="3.1 算法细节"></a>3.1 算法细节</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;所提出的算法是使用 Ryu SDN 控制器作为控制器应用程序来设计和构建的，控制器使用 OFPFlowStatsRequest API 查询交换机并分析响应以计算速率并确定最佳分配速率。然后将所提出的算法应用于各个流量，以计算每个 QoS 类别的新速率。</p>
+<ol>
+<li>算法1： <code>meterAllocation()</code>。使用从交换机中得到的数据计算每条流的当前速率，同时还设置了每条流的预定速率，这两个速率作为算法1的输入。<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python">meterAllocation(allocated, current):<br>need = unused = &#123;&#125;<br><br><span class="hljs-keyword">for</span> ids <span class="hljs-keyword">in</span> allocated:<br>   <span class="hljs-keyword">if</span> current[ids] &gt;= allocated[ids]:<br>      need[ids] = current[ids] - allocated[ids] <br>   <span class="hljs-keyword">else</span> <br>      need[ids] = <span class="hljs-number">0</span><br>   <span class="hljs-keyword">if</span> current[ids] &lt; allocated[ids]:<br>      unused[ids] = allocated[ids] - current[ids]<br>   <span class="hljs-keyword">else</span><br>      unused [ids] = <span class="hljs-number">0</span><br>   end <span class="hljs-keyword">else</span><br>end <span class="hljs-keyword">for</span><br><br><span class="hljs-keyword">if</span> <span class="hljs-built_in">sum</span>(need) &lt;= <span class="hljs-built_in">sum</span>(unused):<br>   new_rate = allocUnder(allocated, current, need, unused)<br><span class="hljs-keyword">else</span><br>   new_rate = allocOver(allocated, current, need, unused)<br>end <span class="hljs-keyword">else</span><br><br><span class="hljs-keyword">return</span> new_rate<br></code></pre></td></tr></table></figure>
+解释：先计算每条流需要的带宽<code>need</code>和没有使用的带宽<code>unused</code>，如果<code>need</code>之和小于<code>unused</code>之和，则进入<code>allocUnder()</code>函数，否则进入<code>allocOver()</code>函数。算法返回每条流的新的配置速率<code>new_rate</code>。</li>
+<li>算法2：<code>allocOver()</code>。<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs python">allocOver(allocated, current, need, unused)<br><span class="hljs-keyword">global</span> be<br>new_rate = p_need = &#123;&#125;<br>total_need = <span class="hljs-built_in">sum</span>(need) – need[be]<br><br><span class="hljs-keyword">for</span> ids <span class="hljs-keyword">in</span> need:<br>   new_rate[ids] = <span class="hljs-built_in">min</span>(allocated[ids], current[ids])<br>   <span class="hljs-keyword">if</span> total_need == <span class="hljs-number">0</span>: <br>      p_need[ids] = <span class="hljs-number">0</span><br>   <span class="hljs-keyword">else</span> <br>      p_need[ids] = need[ids] / total_need<br>end <span class="hljs-keyword">for</span><br><br>total_unused = rem_unused = <span class="hljs-built_in">sum</span>(unused)<br>[need, new_rate, rem_unused] = allocation(need, new_rate, be, p_need, total_unused, rem_unused)<br>total_need = <span class="hljs-built_in">sum</span>(need) – need[be]<br><br><span class="hljs-keyword">if</span> total_need &gt; <span class="hljs-number">0</span>:<br>   be_available = allocated[be] - unused[be]<br>   <span class="hljs-keyword">if</span> total_need &gt;= be_available:<br>      new_rate[be] = <span class="hljs-number">0</span><br>      <span class="hljs-keyword">for</span> ids <span class="hljs-keyword">in</span> need:<br>         <span class="hljs-keyword">if</span> total_need == <span class="hljs-number">0</span>: <br>            p_need[ids] = <span class="hljs-number">0</span><br>         <span class="hljs-keyword">else</span> <br>         p_need[ids] = need[ids] / total_need<br>      end <span class="hljs-keyword">for</span><br>      total_unused = be_available<br>      rem_unused = be_available<br>      [need, new_rate, rem_unused] = allocation (need, new_rate, be, p_need, total_unused, rem_unused)<br>   <span class="hljs-keyword">else</span><br>      new_rate[be] = allocated[be] - total_need<br>      <span class="hljs-keyword">for</span> ids <span class="hljs-keyword">in</span> need:<br>         <span class="hljs-keyword">if</span> ids != be: <br>            new_rate[ids] += need[ids]<br>      end <span class="hljs-keyword">for</span><br>   end <span class="hljs-keyword">else</span><br><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> rem_unused &gt; <span class="hljs-number">0</span>:<br>   new_rate[be] += <span class="hljs-built_in">min</span>(<span class="hljs-built_in">min</span>(rem_unused, current[be]), need[be])<br>end <span class="hljs-keyword">else</span><br><br><span class="hljs-keyword">return</span> new_rate<br></code></pre></td></tr></table></figure>
+解释：<ol>
+<li><code>be</code>代表BE流的index。因为需要的带宽大于没有使用的带宽，因此先不考虑BE流需要的带宽，即<code>total_need = sum(need) – need[be]</code>。<code>new_rate</code>初始化allocated和current中较小的值。计算每个流需要的带宽占总需要带宽的比值<code>p_need</code>，注意判断<code>total_need</code>是否为0。接下来使用<code>allocation()</code>函数进行带宽分配，更新<code>need</code>、<code>new_rate</code>、<code>rem_unused</code>值。更新<code>total_need</code>值。</li>
+<li>如果此时<code>total_need</code>值大于0，说明还有Qos流没有满足，因此将BE流占用带宽分配给Qos流。计算BE流的可用带宽<code>be_available</code>（<code>unused[be]</code>在前面的<code>allocation()</code>函数中已经被分配了，但直接使用<code>current[be]</code>是不是更好呢？），<ol>
+<li>如果<code>total_need &gt;= be_available</code>，那么BE流的带宽也不够满足Qos流，因此根据每个qos流需要进行按比例分配，计算出<code>p_need</code>。然后再次调用<code>allocation()</code>函数得到<code>new_rate</code></li>
+<li>否则：将BE流中<code>total_need</code>部分取出，为需要的Qos流增加其需要带宽。</li>
+</ol>
+</li>
+<li>如果<code>total_need</code>等于0，并且<code>rem_unused</code>大于0（感觉一定等于0，这个分支应该不会执行，后面在算法4<code>allocation()</code>中解释），说明Qos流得到满足，但是还有剩余带宽可以分配。更新<code>new_rate[be]</code>，但是这个min表达式我觉得有点问题。我觉得可以直接<code>new_rate[be] = rem_unused + current[be]</code></li>
+</ol>
+</li>
+<li>算法3：<code>allocUnder()</code>。<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python">allocUnder(allocated, current, need, unused)<br>new_rate = &#123;&#125;<br>ratio = <span class="hljs-built_in">sum</span>(need) / <span class="hljs-built_in">sum</span>(unused)<br><br><span class="hljs-keyword">for</span> ids <span class="hljs-keyword">in</span> need:<br>   new_rate[ids] = <span class="hljs-built_in">max</span>(allocated[ids], current[ids])<br>   <span class="hljs-keyword">if</span> unused[ids] &gt; <span class="hljs-number">0</span>:<br>      new_rate[ids] = allocated[ids] - ratio * unused[ids]<br>   end <span class="hljs-keyword">if</span><br>end <span class="hljs-keyword">for</span><br><br><span class="hljs-keyword">return</span> new_rate<br></code></pre></td></tr></table></figure>
+解释：初始化<code>new_rate</code>,<code>ratio</code>。对所有的流，<code>new_rate</code>赋值为预分配带宽和当前带宽中较大值，如果该流的<code>unused</code>值大于0，暗示其<code>new_rate</code>赋值为了<code>allocated</code>，将其<code>new_rate</code>值减小<code>ratio * unused</code>，这部分减小的带宽就是借出去的带宽，同时因为<code>ratio &lt; 1</code>，所以其带宽还是比<code>current</code>大，这部分多的带宽空间，可以应对突发流量的增长。</li>
+<li>算法4：<code>allocation()</code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python">allocation (need, new_rate, be, p_need, total_unused, rem_unused)<br><span class="hljs-keyword">for</span> ids <span class="hljs-keyword">in</span> need:<br>   <span class="hljs-keyword">if</span> ids == be:<br>      <span class="hljs-keyword">continue</span><br>   end <span class="hljs-keyword">if</span><br>   given = p_need[ids] * total_unused<br>   need[ids] -= given<br>   new_rate[ids] += given<br>   rem_unused -= given<br>end <span class="hljs-keyword">for</span><br><br><span class="hljs-keyword">return</span> [need, new_rate, rem_unused]<br></code></pre></td></tr></table></figure>
+解释：<ul>
+<li><code>allocation()</code>函数是<code>allocOver()</code>函数调用的子函数，其中参数：<code>need</code>：每条流需要的带宽；<code>new_rate</code>：每条流预分配带宽和当前带宽的较小值；<code>be</code>：BE流的index；<code>p_need</code>：每条流需要带宽占<code>total_need</code>的比例；<code>total_unused</code>和<code>rem_unused</code>初始化为每条流没有使用的带宽。算法遍历除BE流以外的每条流，从<code>total_unused</code>中取出<code>p_need</code>比例的流，赋值为<code>given</code>，将<code>given</code>填充给<code>need</code>，以增加<code>new_rate</code>，同时更新剩余可用带宽<code>rem_unused</code>。遍历结束后，返回<code>[need, new_rate, rem_unused]</code>。</li>
+<li>注意到除BE流以外的<code>p_need</code>加起来等于1（在<code>allocOver()</code>函数中，<code>p_need</code>的分母<code>total_need</code>就是除BE流以外需要的带宽，因此除BE流以外的流的<code>p_need</code>之和就等于1），因此遍历结束后，减去的<code>given</code>之和就等于<code>total_unused</code>，所以<code>rem_unused</code>一定为0。</li>
+</ul>
+</li>
+<li>算法时间复杂度<table>
+<thead>
+<tr>
+<th align="center">算法名称</th>
+<th align="center">时间复杂度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">meterAllocation</td>
+<td align="center">O(n)</td>
+</tr>
+<tr>
+<td align="center">allocOver</td>
+<td align="center">O(n)</td>
+</tr>
+<tr>
+<td align="center">allocUnder</td>
+<td align="center">O(n)</td>
+</tr>
+<tr>
+<td align="center">allocation</td>
+<td align="center">O(n)</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<h3 id="4-实验设置"><a href="#4-实验设置" class="headerlink" title="4. 实验设置"></a>4. 实验设置</h3><h4 id="4-1-实验环境"><a href="#4-1-实验环境" class="headerlink" title="4.1 实验环境"></a>4.1 实验环境</h4><ol>
+<li>硬件配置：一台联想小新pro14的windows笔记本<ul>
+<li>处理器：AMD Ryzen 7 7840HS with Radeon 780M Graphics 3.80 GHz</li>
+<li>内存：32.0GB</li>
+<li>硬盘：1024GB</li>
+<li>系统类型：64位操作系统，基于x64的处理器</li>
+<li>Window版本：Window11 23H2</li>
+</ul>
+</li>
+<li>软件工具<ul>
+<li>VMware Workstation 17 Pro：创建ubuntu虚拟环境</li>
+<li>Ryu 4.34：控制器</li>
+<li>Mininet 2.3.0：创建虚拟网络拓扑</li>
+</ul>
+</li>
+</ol>
+<h4 id="4-2-实验设计"><a href="#4-2-实验设计" class="headerlink" title="4.2 实验设计"></a>4.2 实验设计</h4><ol>
+<li>下载代码<br>在文章出处可以找到下载链接：<a target="_blank" rel="noopener" href="https://zenodo.org/records/10184077%EF%BC%8C">https://zenodo.org/records/10184077，</a> 进入该网页后，找到对应的msc_code-main.zip下载即可。<br>解压后对应的目录树如下，每个文件的功能可以在README.md中查看。<br><img src="/../img/wljhylyxtsj/tree.png" srcset="/img/loading.gif" lazyload alt="tree"><ul>
+<li><code>research_code</code>包含了实验所需代码，<code>afqos.py</code>是带宽分配算法，<code>flow_rate.py</code>是带宽近似算法，<code>qostopo.py</code>是拓扑代码。</li>
+<li><code>production_code/allocation_app.py</code>则是经过测试的可以作为完整功能的Ryu应用。</li>
+</ul>
+</li>
+<li>配置mysql，因为<code>flow_rate.py</code>和<code>afqos.py</code>都使用了mysql来存储流量信息，因此需要先安装并配置mysql。可以参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/LogosTR_/article/details/125602116">https://blog.csdn.net/LogosTR_/article/details/125602116</a> 。然后需要将对应的用户名和密码进行修改，创建一个新的数据库grafana，我的结果如下。<br><img src="/../img/wljhylyxtsj/mysql.png" srcset="/img/loading.gif" lazyload alt="mysql"></li>
+<li>运行代码。<ol>
+<li>因为<code>qostopo.py</code>使用了Ryu的REST API，因此需要运行<code>ryu/ryu/app/ofctl_rest.py</code>，可以将其复制到<code>research_code</code>目录下，同时需要修改<code>qostopo.py</code>的IP地址位ubuntu的IP。启动ryu控制器:<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">ryu-manager afqos.py ofctl_rest.py<br></code></pre></td></tr></table></figure>
+<img src="/../img/wljhylyxtsj/ryu-manager.png" srcset="/img/loading.gif" lazyload alt="ryu-manager"></li>
+<li>运行拓扑：<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">sudo</span> python3 qostopo.py<br></code></pre></td></tr></table></figure>
+<img src="/../img/wljhylyxtsj/qostopo.png" srcset="/img/loading.gif" lazyload alt="qostopo"></li>
+<li>代码每一次测试需要5min，每次对交换机2（模拟边缘路由器）进行meter表限速(实际拓扑如下)。<br><img src="/../img/wljhylyxtsj/topo.png" srcset="/img/loading.gif" lazyload></li>
+<li>试了一下，对于<code>qostopo.py</code>有两个问题：首先h2到h6的iperf测试出现问题，h2似乎将h7的IP作为h6的IP；然后在测试后半段，传输的数据都变成了0。对于<code>afqos.py</code>有一个问题：数据库里面并没有任何流信息。</li>
+</ol>
+</li>
+<li>debug：<ol>
+<li>我尝试直接输出每个主机的IP，然后发现确实h6和h7的IP是一样的，查看前面的代码发现，原来作者将h6的IP设置错了，应该是192.168.0.132才对。其实从前面的ping测试h7有问题也应该想到的，不知道作者做实验的时候发现没有。修改了一下，h6果然有了输出。</li>
+<li>然后就是，测试后半段的时候，iperf得到的输出显示的带宽很低，我就感觉是meter表限速的问题，应该是把速度限制的太低了。查看<code>ofctl_rest.py</code>，里面就有meter表配置限速的REST API地址。查看发现，meter表的限速的确十分不合理。<img src=../img/wljhylyxtsj/meterconfig_2_1.png width="50%"></li>
+<li>后面试着修改了一下<code>qostopo.py</code>，只测一次60s时间，然后把client端的带宽都记录下，用作和server端对比。后来理解了，原来是因为client每2s发一次请求，后面的请求比如58-60s的请求，前面0-58s就没有数据，但是iperf还是显示了0-58s的传输带宽，这部分当然是0了。因此，每一次请求实际的测出来的带宽应该是最后2s显示的带宽，而不是整个时间的带宽。</li>
+<li>但是，meter表的带宽限速还是有问题，这个需要看<code>afqos.py</code>，具体分析带宽分配算法的运行过程。分析后发现，默认是aqos算法，而且初始的带宽分配也和<code>qostopo.py</code>不同，修改一下，重新运行。得到的meter表就比较合理，最后meter表的限速也变成了最初的配置。但是每条流实际的需要带宽和测出的带宽还有差距，感觉算法应该存在一定问题。</li>
+<li>研究了一下<code>afqos.py</code>，发现还是有点问题，比如数据库的表前面是qos，后面又有个flow，我就统一改成了qos。而且表初始化时没有bw列，但是插入数据时又有bw列，我后面就加了上去。总体来看，应该是作者在测试时，配置的数据库不同，（<code>afqos.py</code>是qos表，<code>flow_rate.py</code>是flow表）代码打包上传后，没有仔细修改查看。</li>
+</ol>
+</li>
+<li>最后，也是在数据库中看到了afqos算法在带宽分配为8000，6000，4000，2000时的数据。<br><img src="/../img/wljhylyxtsj/qos_table_test.png" srcset="/img/loading.gif" lazyload alt="qos_table_test"></li>
+<li>考虑了一下，还是直接试试<code>production_code/allocation_app.py</code>，毕竟作者说这部分代码是经过测试了的。但是这个代码是没有其他数据的（比如，s2实际的传输字节），只能通过iperf查看测试的带宽情况。所以后面的结果展示用的还是<code>afqos.py</code>的结果。</li>
+</ol>
+<h3 id="5-实验结果"><a href="#5-实验结果" class="headerlink" title="5. 实验结果"></a>5. 实验结果</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;由于缺乏合理的数据分析手段，得到的数据结果（有iperf的测试数据，数据库保存的各个流的流速信息），还有就是算法实际分配的带宽（这部分难以实时收集，或者对应每一秒的流速，因为REST API的内容是实时更新的，而且最后的结果显示的预配置的结果）。我虽然可以收集这些信息，但是要想作者一样进行前4s的带宽分配对比，还是比较困难。同时吞吐量的对比我也没想到怎么做，因为要知道预期的吞吐量和实际的吞吐量，这两个应该对应于meter表配置的流速和实际的流速，前面说过了，因为实验测试很快，我无法得到meter表每一秒的流速。</p>
+<h4 id="5-1-结果展示"><a href="#5-1-结果展示" class="headerlink" title="5.1 结果展示"></a>5.1 结果展示</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;这部分只能展示一下iperf测试的数据结果、数据库保存的流速信息、交换机2上的meter表的某个时间的限速信息。<br><strong>note</strong>：修改了一下<code>afqos.py</code>，把数据库里一些空字段（这个是用在<code>flow_rate.py</code>里面的）删除了。<br>实验中各个流预分配带宽均为：8000，6000，4000，2000；各个流的实际流速是根据大致流速和实验时间的最小二乘算法估计值，在预设置的大致流速左右波动。</p>
+<ol>
+<li>各个流的大致流速：7000，5000，3000，1000<ol>
+<li>aqos算法， <div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>afqos算法，<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_f_7_5_3_1.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+</ol>
+</li>
+<li>各个流的大致流速：8000，6000，4000，2000<ol>
+<li>aqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>afqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_f_8_6_4_2.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+</ol>
+</li>
+<li>各个流的大致流速：9000，7000，5000，3000<ol>
+<li>aqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+<li>afqos算法<div class="group-image-container"><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/iperf_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div><div class="group-image-row"><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/mysql_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div><div class="group-image-wrap"><img src="/../img/wljhylyxtsj/meter_f_9_7_5_3.png" srcset="/img/loading.gif" lazyload></div></div></div></li>
+</ol>
+</li>
+</ol>
+<h4 id="5-2-结果分析"><a href="#5-2-结果分析" class="headerlink" title="5.2 结果分析"></a>5.2 结果分析</h4><ol>
+<li>在带宽较为充足时，从上面meter表中可以很清楚的发现aqos算法和afqos算法的一个明显区别：aqos算法只是分配需要的带宽，而afqos算法将可用带宽尽可能分配。比如在7000，5000，3000，1000的实验中，aqos算法某一时刻分配的带宽为：6478、4259、3211、897，总分配带宽为14845；而aqos算法因为所有流都没有超过预定带宽，所以分配的带宽几乎在实验过程中一直保持：8000、6000、4000、2000，总分配带宽为20000。</li>
+<li>再看可用带宽较为充分利用时，因为无法看到同一时刻的流速和对应的实时meter表，只能从总分配带宽中看出一些信息。某一时刻，aqos算法总分配带宽是19078，某一时刻，afqos算法总分配带宽19998。可以理解出来，这就是作者说的，为借用带宽的流留下一些空隙，也就是实际上会比需要的多分配一些带宽，以防突发的流量，从而减少丢包，提升吞吐量。</li>
+<li>最后是可用带宽不足的情况，两种算法都自然而然的选择从BE流中获取带宽，导致BE流的meter表限速非常低，但是在sql表中测量的4的流速也有2000-3000的部分，是否代码哪部分出现问题了呢？哦，实际上的限速发生在出了交换机2之后，所以2的速度没有明显改变，应该是看交换机3的流速，重新看了一下，确实没问题。关于mysql的图片已更新，更新之后，其实第一个看不出什么，几乎是switch2多少流速，switch3就多少流速；第二个情况下，afqos算法的mysql图片可以看出确实限速了，而aqos算法可能因为生成的流速比较小，导致限速不明显。</li>
+</ol>
+<h3 id="6-讨论和总结"><a href="#6-讨论和总结" class="headerlink" title="6. 讨论和总结"></a>6. 讨论和总结</h3><h4 id="6-1-复现的挑战"><a href="#6-1-复现的挑战" class="headerlink" title="6.1 复现的挑战"></a>6.1 复现的挑战</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;复现这篇论文，我觉得最大的挑战，还是环境和运行方法。因为作者在README中只是简单结束了各个文件的内容和作用，并没有给出她测试时的详细环境和配置，以及测试方法，所以当时我尝试了很久，也遇到了很多报错。比如，作者的数据库配置没有介绍清楚，我只能根据代码摸索，自己建立数据库，建表，添加字段等；作者没有提到她的Ryu APP需要REST API的支持，我是自己发现然后添加的。当然，还有一些代码上的小错误，比如虚拟主机的IP写错了，数据库的表名称其实前后冲突了，算法的选择需要手动配置等。<br><br>&nbsp;&nbsp;&nbsp;&nbsp;解决了这些问题，在就是数据的处理问题。得到的meter表限速没有保存，更新太快，难以和数据库的流速信息对应，只能大致比较一下；还有iperf工具得到的带宽数据不好分析，而且其带宽结果在测试后期明显偏低，和数据库的保存的流速信息不符，只能作为参考，难以利用。缺乏这些数据，没有办法像作者一样，得出不同情况下前四秒的带宽分配图，只有吞吐量图，由于iperf测试出的实际带宽明显不合理，和理论带宽的比值甚至不足50%，因此不能参考。</p>
+<h4 id="6-2-改进建议"><a href="#6-2-改进建议" class="headerlink" title="6.2 改进建议"></a>6.2 改进建议</h4><ol>
+<li>我希望作者能够考虑将她的测试环境（作者提到的window主机和ubuntu主机环境）发布到网上，方便复现；同时配上复现方法的文档，这样可以省去读者复现时摸索的时间</li>
+<li>我希望作者优化一下<code>research_code</code>，里面存在一些小错误，而且没有办法实现自动化的测试，每测试一种情况，都需要重新配置，十分麻烦。</li>
+<li>作者没有提供良好的数据分析处理功能，手动分析没有可行性，可以参考前面提到的问题进行修改。</li>
+<li>最后就是算法方面，我在分析算法时提到算法2其实最后一部分代码不可能执行，希望作者可以优化代码逻辑，能确实为BE流考虑。</li>
+</ol>
+<h4 id="6-3-总结"><a href="#6-3-总结" class="headerlink" title="6.3 总结"></a>6.3 总结</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;这篇论文的背景和研究问题是比较容易理解的，就是在SDN架构下利用实现流量的Qos配置，实现方法是用meter表进行限速来对不同类型流量进行带宽分配和重分发。和其他研究的区别在于，研究对象是边缘路由器，流量比较拥塞，可能有突发流量，而且没有使用其他技术（仅用到了meter表）。论文在实验部分大致设置了三种情况：流量较小，流量适中，流量较大；当前流速其实是通过前一秒的流速用最小二乘方法和其他的数学方法预测到的，因此是为下一次的流量限速；自己的afqos算法对比了aqos算法，有9%的性能提升。<br><br>&nbsp;&nbsp;&nbsp;&nbsp;论文复现时遇到了一些问题，我尽量解决了，得到了和论文中大致相同的结果。但是对于数据的分析，由于作者没有在论文中提到，而且在代码也没发现，我就没有进行。但是从本报告的结果展示中，可以得出作者的算法确实在一定程度上优于aqos算法。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" class="category-chain-item">实验报告</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/sdn/" class="print-no-link">#sdn</a>
+      
+        <a href="/tags/%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" class="print-no-link">#实验报告</a>
+      
+        <a href="/tags/qos/" class="print-no-link">#qos</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>网络交换原理和系统设计实验报告</div>
+      <div>http://diba0.github.io/2024/09/18/网络交换原理和系统设计实验报告/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>diba0</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/18/Windows%E4%B8%8B%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8Anaconda/" title="Windows下安装使用Anaconda">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Windows下安装使用Anaconda</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/17/%E5%9F%BA%E4%BA%8Esyzkaller+codeql%E7%9A%84%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" title="基于syzkaller+codeql的漏洞复现实验报告">
+                        <span class="hidden-mobile">基于syzkaller+codeql的漏洞复现实验报告</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'diba0/diba0.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

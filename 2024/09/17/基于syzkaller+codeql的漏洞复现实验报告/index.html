@@ -1,0 +1,912 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="diba0">
+  <meta name="keywords" content="blog, life, work">
+  
+    <meta name="description" content="基于syzkaller+CodeQL的漏洞复现实验报告1. 实验目的分析syzkaller实现原理，描述利用syzkaller和CodeQL用法，并对具体cve案例展开测试（至少3个） 2. 实验技术原理2.1 syzkaller技术原理参考：syzkaller - kernel fuzzer 2.1.1 syzkaller简介syzkaller是一个无监督的覆盖率引导的内核模糊测试器，支持操作系">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于syzkaller+codeql的漏洞复现实验报告">
+<meta property="og:url" content="http://diba0.github.io/2024/09/17/%E5%9F%BA%E4%BA%8Esyzkaller+codeql%E7%9A%84%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/index.html">
+<meta property="og:site_name" content="diba0&#39;s blog">
+<meta property="og:description" content="基于syzkaller+CodeQL的漏洞复现实验报告1. 实验目的分析syzkaller实现原理，描述利用syzkaller和CodeQL用法，并对具体cve案例展开测试（至少3个） 2. 实验技术原理2.1 syzkaller技术原理参考：syzkaller - kernel fuzzer 2.1.1 syzkaller简介syzkaller是一个无监督的覆盖率引导的内核模糊测试器，支持操作系">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://diba0.github.io/img/syzkaller+codeql/process_structure.png">
+<meta property="article:published_time" content="2024-09-17T03:24:20.000Z">
+<meta property="article:modified_time" content="2024-10-21T00:38:54.871Z">
+<meta property="article:author" content="diba0">
+<meta property="article:tag" content="实验报告">
+<meta property="article:tag" content="syzkaller">
+<meta property="article:tag" content="codeql">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://diba0.github.io/img/syzkaller+codeql/process_structure.png">
+  
+  
+  
+  <title>基于syzkaller+codeql的漏洞复现实验报告 - diba0&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"diba0.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>diba0&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="基于syzkaller+codeql的漏洞复现实验报告"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-17 11:24" pubdate>
+          2024年9月17日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          42 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">基于syzkaller+codeql的漏洞复现实验报告</h1>
+            
+              <p id="updated-time" class="note note-info" style="">
+                
+                  
+                    本文最后更新于 2024年10月21日 早上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="基于syzkaller-CodeQL的漏洞复现实验报告"><a href="#基于syzkaller-CodeQL的漏洞复现实验报告" class="headerlink" title="基于syzkaller+CodeQL的漏洞复现实验报告"></a>基于syzkaller+CodeQL的漏洞复现实验报告</h1><h2 id="1-实验目的"><a href="#1-实验目的" class="headerlink" title="1. 实验目的"></a>1. 实验目的</h2><p>分析syzkaller实现原理，描述利用syzkaller和CodeQL用法，并对具体cve案例展开测试（至少3个）</p>
+<h2 id="2-实验技术原理"><a href="#2-实验技术原理" class="headerlink" title="2. 实验技术原理"></a>2. 实验技术原理</h2><h3 id="2-1-syzkaller技术原理"><a href="#2-1-syzkaller技术原理" class="headerlink" title="2.1 syzkaller技术原理"></a>2.1 syzkaller技术原理</h3><p>参考：<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller">syzkaller - kernel fuzzer</a></p>
+<h4 id="2-1-1-syzkaller简介"><a href="#2-1-1-syzkaller简介" class="headerlink" title="2.1.1 syzkaller简介"></a>2.1.1 syzkaller简介</h4><p>syzkaller是一个无监督的覆盖率引导的内核模糊测试器，支持操作系统：FreeBSD, Fuchsia, gVisor, Linux, NetBSD, OpenBSD, Windows。</p>
+<p>syzkaller 系统的流程结构如下图所示：<br><img src="/../img/syzkaller+codeql/process_structure.png" srcset="/img/loading.gif" lazyload alt="process_structure"></p>
+<ul>
+<li>syz-manager负责：<ul>
+<li>启动&#x2F;重启&#x2F;监控虚拟机实例，每个虚拟机都启动一个syz-executor进程</li>
+<li>实际模糊处理过程（输入生成、变异、最小化等）。</li>
+<li>生成持久语料库和崩溃存储。</li>
+</ul>
+</li>
+<li>syz-executor：<ul>
+<li>通过RPC(远程过程调用，Remote Procedure Call)与syz-manager通信，接收需要执行的程序，然后报告结果（错误状态，收集的覆盖率等）</li>
+<li>启动临时的子进程来执行一系列系统调用，与内核通信，接收内核的覆盖率信息</li>
+</ul>
+</li>
+<li>sshd&#x2F;adbd:<ul>
+<li>syz-manage通过ssh登录到虚拟机实例，然后调用syz-executor</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-1-2-系统调用描述文件"><a href="#2-1-2-系统调用描述文件" class="headerlink" title="2.1.2 系统调用描述文件"></a>2.1.2 系统调用描述文件</h4><p>本节参考：</p>
+<ol>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/syscall_descriptions.md">Syscall descriptions</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/syscall_descriptions_syntax.md">Syscall description language</a></p>
+</li>
+</ol>
+<p>syz-manager进程根据系统调用描述生成程序，特定的系统描述生成文件对应特定的系统调用，针对特定内核的特定系统调用进行测试，更容易找到发现crashes(崩溃)，从而提高fuzzing的效率。<br>syzkaller 使用系统调用接口的声明性描述来操作程序，这种声明性描述或者系统调用描述，在syzkaller代码目录一般是保存为<code>sys/$OS/*.txt</code>，例如<code>sys/linux/dev_snd_midi.txt</code>就是Linux MIDI 接口的描述。下面是一个读写文件的系统调用描述文件：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">open</span><span class="hljs-params">(file filename, flags flags[open_flags], mode flags[open_mode])</span></span> fd<br><span class="hljs-function"><span class="hljs-title">read</span><span class="hljs-params">(fd fd, buf buffer[out], count len[buf])</span></span><br><span class="hljs-function"><span class="hljs-title">close</span><span class="hljs-params">(fd fd)</span></span><br>open_mode = S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IWGRP, S_IXGRP, S_IROTH, S_IWOTH, S_IXOTH<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>open</code>：是系统调用函数</li>
+<li><code>file filename</code>：file是名称（或者称为标识符），filename是类型</li>
+<li><code>flags flags[open_flags]</code>：第一个flags是名称（或者称为标识符），第二个flags是类型，open_flags是一系列的值。意思是flags的值可以是open_flags中的一个。</li>
+<li><code>mode flags[open_mode]</code>：mode是名称（或者称为标识符），flags是类型，open_mode是一系列的值，定义在下面。意思是mode的值可以是open_mode中的一个。</li>
+<li><code>fd</code>是<code>open</code>函数返回值，一般先会使用<code>resource</code>关键字进行定义的，定义好了之后可以作为类型使用。</li>
+<li><code>read</code>函数使用了<code>fd</code>资源，将内容存到buf（类型是buffer）里面。然后<code>close</code>函数接收<code>fd</code>作为参数，关闭文件。</li>
+</ul>
+<p>然后，转换后的描述文件用于生成、变异、执行、最小化、序列化和反序列化程序。程序是具有具体参数值的系统调用序列。下面是一个上面描述文件生成的程序的示例：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus">r0 = <span class="hljs-built_in">open</span>(&amp;(<span class="hljs-number">0</span>x7f0000000000)=<span class="hljs-string">&quot;./file0&quot;</span>, <span class="hljs-number">0</span>x3, <span class="hljs-number">0</span>x9)<br><span class="hljs-function"><span class="hljs-title">read</span><span class="hljs-params">(r0, &amp;(<span class="hljs-number">0</span>x7f0000000000)</span></span>, <span class="hljs-number">42</span>)<br><span class="hljs-function"><span class="hljs-title">close</span><span class="hljs-params">(r0)</span></span><br></code></pre></td></tr></table></figure>
+<p>将文本系统调用描述编译为 syzkaller 用来实际生成程序的机器可用形式的过程包括 2 个步骤。</p>
+<ol>
+<li>使用 syz-extract 实用程序从内核源中提取符号常量的值。 syz-extract 生成一个小型 C 程序，其中包括由 include 指令引用的内核头、定义由 Define 指令指定的宏并打印符号常量的值。结果存储在 .const 文件中，每个架构一个。例如，<code>sys/linux/dev_ptmx.txt</code> 被转换为 <code>sys/linux/dev_ptmx.txt.const</code>。</li>
+<li>使用 syz-sysgen 实用程序将描述转换为 Go 代码（实际的编译器代码位于 <code>pkg/ast</code> 和 <code>pkg/compiler</code> 中）。此步骤使用系统调用描述和第一步中生成的 const 文件，并生成 prog&#x2F;types.go 中定义的系统调用和类型类型的实例化。</li>
+</ol>
+<h4 id="2-1-3-覆盖率"><a href="#2-1-3-覆盖率" class="headerlink" title="2.1.3 覆盖率"></a>2.1.3 覆盖率</h4><p>参考：<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/coverage.md">coverage</a><br>syzkaller 使用Sanitizer coverage（跟踪模式）和 KCOV 进行覆盖率收集。 gcc 也支持 Sanitizer coverage ，其他一些操作系统也支持 KCOV。</p>
+<p>覆盖率基于跟踪编译器插入到目标代码中的覆盖点。覆盖点通常指基本代码块或 CFG 边缘（这取决于构建期间使用的编译器和检测模式，例如，对于 Linux 和 clang，默认模式是 CFG 边缘，而对于 gcc，默认模式是基本块）。请注意，在经过大量转换和优化之后，编译器会在中端插入覆盖点。因此，结果覆盖率可能与源代码的相关性较差。评估覆盖率通常仍然非常有用，可以了解模糊测试的整​​体进度，但要持保留态度。</p>
+<p>在syzkaller的web接口：<a target="_blank" rel="noopener" href="http://127.0.0.1:56741/">syzkaller</a>，coverage后面的数字，代表覆盖率。点击之后，可以查看linux内核源代码各个文件的结果覆盖率。如下图所示，<code>--</code>代表该目录没有覆盖，<code>X% of N</code>代表现在N个覆盖点的X%被覆盖，点击X%可以看到对应文件中各个函数的覆盖率。<br><img src="/../img/syzkaller+codeql/coverage.png" srcset="/img/loading.gif" lazyload alt="coverage"></p>
+<p>点击对应的文件，可以看到源代码和颜色标记，不同的颜色标记有不同的含义。<br><img src="/../img/syzkaller+codeql/coverage_color.png" srcset="/img/loading.gif" lazyload alt="coverage_color"></p>
+<ul>
+<li>黑色：与该行关联的所有 PC 值都被覆盖。左侧有一个数字，表示有多少程序已触发执行与该行关联的 PC 值。您可以单击该数字，它将打开最后执行的程序。</li>
+<li>橘色：有多个与该行关联的 PC 值，但并非所有这些值都被执行了。同样，源代码行中还留有数字，可以单击该数字来打开触发相关 PC 值的最后一个程序</li>
+<li>深红色：该行所在的函数（符号）没有任何覆盖，即该函数根本没有执行。</li>
+<li>红色：该行没有覆盖，即所在的函数被执行了，但该行没有执行。</li>
+<li>灰色：与该行关联的PC值不会被检测，或者源行根本不会生成代码。</li>
+</ul>
+<p>syz-cover是syzkaller仓库的一个工具，可以根据原始覆盖数据生成覆盖报告</p>
+<h4 id="2-1-4-崩溃报告"><a href="#2-1-4-崩溃报告" class="headerlink" title="2.1.4 崩溃报告"></a>2.1.4 崩溃报告</h4><p>当 syzkaller 发现崩溃程序时，它会将有关它的信息保存到 <code>workdir/crashes</code> 目录中。该目录针对每种独特的崩溃类型包含一个子目录。每个子目录都包含一个描述文件，其中包含标识崩溃的唯一字符串（用于错误识别和重复数据删除）；以及最多 100 个 logN 和 reportN 文件，每台测试机崩溃一对，下面是我实验时的crashes目录树：<br><img src="/../img/syzkaller+codeql/tree_crashes.png" srcset="/img/loading.gif" lazyload alt="tree_crashes"><br>logN 文件包含原始 syzkaller 日志，并包括内核控制台输出以及崩溃之前执行的程序。这些日志可以输入 syz-repro 工具进行崩溃定位和最小化，或者输入 syz-execprog 工具进行手动本地化。 reportN 文件包含后处理和符号化的内核崩溃报告（例如 KASAN 报告）。通常只需要一对这些文件（即 log0 和 report0），因为它们可能都描述相同的内核错误。</p>
+<h3 id="2-2-CodeQL技术原理"><a href="#2-2-CodeQL技术原理" class="headerlink" title="2.2 CodeQL技术原理"></a>2.2 CodeQL技术原理</h3><h4 id="2-2-1-CodeQL简介"><a href="#2-2-1-CodeQL简介" class="headerlink" title="2.2.1 CodeQL简介"></a>2.2.1 CodeQL简介</h4><p>参考：<a target="_blank" rel="noopener" href="https://codeql.github.com/docs/codeql-overview/about-codeql/">About CodeQL</a><br>CodeQL 是开发人员用来自动进行安全检查、安全研究人员用来执行变体分析的分析引擎。在 CodeQL 中，代码被视为数据。安全漏洞、错误和其他错误被建模为可以针对从代码中提取的数据库执行的查询。<br>CodeQL 分析包含三个步骤：</p>
+<ul>
+<li>通过创建CodeQL数据库来准备代码</li>
+<li>针对数据库运行CodeQL查询</li>
+<li>解释查询结果</li>
+</ul>
+<ol>
+<li>数据库创建<ol>
+<li>为了创建数据库，CodeQL首先提取代码库中每个源文件的单个关系表示。提取过程：<ul>
+<li>编译型语言：监控代码编译过程，收集源文件的语法信息和语义信息 </li>
+<li>解释型语言：直接在源代码中运行，获取代码库的准确表示</li>
+</ul>
+</li>
+<li>分析所需的所有数据（关系数据、复制的源文件和特定于语言的数据库架构）将导入到一个目录中，称为CodeQL数据库。</li>
+</ol>
+<ul>
+<li>CodeQL数据库包括抽象语法树、数据流图和控制流图的表示。</li>
+<li>CodeQL数据库为每种语言都设计了关键的表，这些表在CodeOL库中被抽象为类，使得编写查询更加容易。</li>
+</ul>
+</li>
+<li>查询执行<ul>
+<li>CodeQL查询是用专门设计的面向对象查询语言（称为 QL）编写的。使用CodeQL for VS Code扩展或CodeQL CLI运行CodeQL仓库的取出的查询。</li>
+</ul>
+</li>
+<li>查询结果<ul>
+<li>将查询执行期间生成的结果转换为在源代码上下文中更有意义的形式，从而突出显示查询中旨在查找的潜在问题。</li>
+<li>查询包含指示如何解释结果的元数据属性。例如：在代码的某个位置显示一条消息；显示一系列位置等。</li>
+<li>查询的结果可以用作代码审查和分类。对于CodeQL for VS Code扩展，解释好的查询直接显示在代码中，对于CodeQL CLI，查询结果有多种输出格式。</li>
+</ul>
+</li>
+</ol>
+<h4 id="2-2-2-编写CodeQL查询"><a href="#2-2-2-编写CodeQL查询" class="headerlink" title="2.2.2 编写CodeQL查询"></a>2.2.2 编写CodeQL查询</h4><p>参考：<a target="_blank" rel="noopener" href="https://codeql.github.com/docs/writing-codeql-queries/">https://codeql.github.com/docs/writing-codeql-queries/</a></p>
+<h2 id="3-实验详细步骤"><a href="#3-实验详细步骤" class="headerlink" title="3. 实验详细步骤"></a>3. 实验详细步骤</h2><h3 id="3-1-基础环境"><a href="#3-1-基础环境" class="headerlink" title="3.1 基础环境"></a>3.1 基础环境</h3><ul>
+<li>操作系统：Windows 11</li>
+<li>架构：x86_64</li>
+<li>软件：VMware 17.0.0 build-20800274</li>
+<li>虚拟机：Ubuntu 20.04</li>
+</ul>
+<h3 id="3-2-syzkaller实验"><a href="#3-2-syzkaller实验" class="headerlink" title="3.2 syzkaller实验"></a>3.2 syzkaller实验</h3><h4 id="3-2-1-syzkaller环境搭建"><a href="#3-2-1-syzkaller环境搭建" class="headerlink" title="3.2.1 syzkaller环境搭建"></a>3.2.1 syzkaller环境搭建</h4><p>本节参考文档：<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/linux/setup.md">How to set up syzkaller</a><br>要使用syzkaller，需要下面四个组件</p>
+<ul>
+<li>Go语言编译器和syzkaller本身</li>
+<li>支持覆盖率的C编译器</li>
+<li>支持覆盖率的Linux内核</li>
+<li>虚拟机或物理设备</li>
+</ul>
+<h5 id="3-2-1-1-Go和syzkaller"><a href="#3-2-1-1-Go和syzkaller" class="headerlink" title="3.2.1.1 Go和syzkaller"></a>3.2.1.1 Go和syzkaller</h5><ol>
+<li><p>syzkaller是用Go编写的，并且为了编译需要Go 1.21+工具链。这个工具链可以按照以下步骤安装：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">wget https://dl.google.com/go/go1.21.4.linux-amd64.tar.gz<br>tar -xf go1.21.4.linux-amd64.tar.gz<br><span class="hljs-meta prompt_"># </span><span class="language-bash">可以将这下面部分放在~/.bashrc内，通过<span class="hljs-built_in">source</span> .bashrc更新配置</span><br>export GOROOT=`pwd`/go<br>export PATH=$GOROOT/bin:$PATH<br></code></pre></td></tr></table></figure>
+<p> 实验过程如下<br> <img src="/../img/syzkaller+codeql/Go_download.png" srcset="/img/loading.gif" lazyload alt="Go_download"><br> <img src="/../img/syzkaller+codeql/Go_bashrc_config.png" srcset="/img/loading.gif" lazyload alt="Go_bashrc_config"><br> <img src="/../img/syzkaller+codeql/Go_test.png" srcset="/img/loading.gif" lazyload alt="Go_test"></p>
+</li>
+<li><p>下载和编译syzkaller</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">git clone https://github.com/google/syzkaller<br>cd syzkaller<br>make<br></code></pre></td></tr></table></figure>
+<p> 在<code>bin</code>目录下看到对应的二进制文件即为成功<br> <img src="/../img/syzkaller+codeql/syzkaller_bin.png" srcset="/img/loading.gif" lazyload alt="syzkaller_bin"></p>
+</li>
+</ol>
+<h5 id="3-2-1-2-C编译器"><a href="#3-2-1-2-C编译器" class="headerlink" title="3.2.1.2 C编译器"></a>3.2.1.2 C编译器</h5><p>syzkaller 是一种以覆盖率为导向的模糊器，因此需要内核支持覆盖率，GCC 6.1.0及以上支持覆盖率。<br>确认gcc版本高于6.1.0<br><img src="/../img/syzkaller+codeql/gcc_version.png" srcset="/img/loading.gif" lazyload alt="gcc_version"></p>
+<h5 id="3-2-1-3-Linux内核"><a href="#3-2-1-3-Linux内核" class="headerlink" title="3.2.1.3 Linux内核"></a>3.2.1.3 Linux内核</h5><p>除了 GCC 中的覆盖率支持外，syzkaller还需要内核方面的支持。 KCOV 是在 4.6 版的 Linux 内核中加入的，可通过 CONFIG_KCOV&#x3D;y 内核配置选项启用。<br>这里指的应该是要fuzz的linux内核版本应该大于4.6，而不是说syzkaller的宿主机的linux内核版本。</p>
+<h5 id="3-2-1-4-VM建立"><a href="#3-2-1-4-VM建立" class="headerlink" title="3.2.1.4 VM建立"></a>3.2.1.4 VM建立</h5><p>syzkaller在工作虚拟机或物理设备上执行内核模糊测试，这些工作环境被称为VMs。开箱即用的 syzkaller 支持 QEMU、kvmtool 和 GCE 虚拟机、安卓设备和 Odroid C2 板。<br>后续还有一些要求：比如VM支持联网，开启ssh服务，支持root ssh无需密码的身份认证。<br>本次实验采用的VM是QEMU，因此需要在宿主机（也就是虚拟机ubuntu20.04）上安装QEMU。</p>
+<h5 id="3-2-1-5-内核模糊测试验证"><a href="#3-2-1-5-内核模糊测试验证" class="headerlink" title="3.2.1.5 内核模糊测试验证"></a>3.2.1.5 内核模糊测试验证</h5><p>本节参考文档：<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/linux/setup_ubuntu-host_qemu-vm_x86-64-kernel.md">Setup: Ubuntu host, QEMU vm, x86-64 kernel</a><br>以下是如何在 QEMU 中对 x86-64 内核进行模糊测试的说明，主机为 Ubuntu，QEMU 实例为 Debian Bullseye。</p>
+<ol>
+<li><p>安装依赖</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo apt update<br>sudo apt install make gcc flex bison libncurses-dev libelf-dev libssl-dev<br></code></pre></td></tr></table></figure></li>
+<li><p>GCC：ubuntu20.04满足要求，无需更新</p>
+</li>
+<li><p>内核：这是指要fuzz的内核</p>
+<ol>
+<li>下载源码  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">git clone --branch v6.2 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git<br></code></pre></td></tr></table></figure>
+  这里官方文档的git链接可能没有权限，我就改成了https的链接<br>  <img src="/../img/syzkaller+codeql/git_clone_linux.png" srcset="/img/loading.gif" lazyload alt="git_clone_linux"></li>
+<li>生成默认配置文件  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd linux<br>make defconfig<br>make kvm_guest.config<br></code></pre></td></tr></table></figure>
+  <img src="/../img/syzkaller+codeql/generate_default_configs.png" srcset="/img/loading.gif" lazyload alt="generate_default_configs"></li>
+<li>启动需要的配置选项：在linux目录下有<code>.config</code>文件，至少需要启动以下选项  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs conf"># Coverage collection.<br>CONFIG_KCOV=y<br><br># Debug info for symbolization.<br>CONFIG_DEBUG_INFO_DWARF4=y<br><br># Memory bug detector<br>CONFIG_KASAN=y<br>CONFIG_KASAN_INLINE=y<br><br># Required for Debian Stretch and later<br>CONFIG_CONFIGFS_FS=y<br>CONFIG_SECURITYFS=y<br><br>CONFIG_CMDLINE_BOOL=y<br>CONFIG_CMDLINE=&quot;net.ifnames=0&quot;<br></code></pre></td></tr></table></figure>
+   因为我后面运行syzkaller时有错误：<blockquote>
+<p>Failed to start Raise network interfaces</p>
+</blockquote>
+  根据<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/linux/troubleshooting.md">Troubleshooting</a>可知需要在配置文件中增加<code>&quot;CONFIG_CMDLINE_BOOL=y   CONFIG_CMDLINE=&quot;net.ifnames=0&quot;&quot; </code>。<br>  重新生成配置文件  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">make olddefconfig<br></code></pre></td></tr></table></figure>
+  <img src="/../img/syzkaller+codeql/make_olddefconfig.png" srcset="/img/loading.gif" lazyload alt="make_olddefconfig"></li>
+<li>编译内核  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">make -j`nproc`<br></code></pre></td></tr></table></figure>
+  如果出现错误： <code>make: *** [Makefile:1161:vmlinux]  Error 137</code>应该是内存不够，建议ubuntu关掉其他程序。<br>  查看生成的vmlinux和bzImage<br>  <img src="/../img/syzkaller+codeql/ls_vmlinux_bzImage.png" srcset="/img/loading.gif" lazyload alt="ls_vmlinux_bzImage"></li>
+</ol>
+</li>
+<li><p>镜像</p>
+<ol>
+<li>安装debootstrap  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo apt install debootstrap<br></code></pre></td></tr></table></figure></li>
+<li>创建Debian Bullseye Linux镜像  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir image<br>cd image/<br>wget https://raw.githubusercontent.com/google/syzkaller/master/tools/create-image.sh -O create-image.sh<br>chmod +x create-image.sh<br>./create-image.sh<br></code></pre></td></tr></table></figure>
+  创建完成后，可以看到生成了<code>bullseye.img</code>镜像文件<br>  <img src="/../img/syzkaller+codeql/image_ll.png" srcset="/img/loading.gif" lazyload alt="image_ll"></li>
+<li>其他选项：<code>create-image.sh</code>有很多选项，比如指定镜像的版本，附加的工具等。实验仅仅使用了默认选项。</li>
+</ol>
+</li>
+<li><p>QEMU</p>
+<ol>
+<li>安装QEMU  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo apt install qemu-system-x86<br></code></pre></td></tr></table></figure></li>
+<li>验证：确保内核启动和sshd开启，可以把下面的命令保存为<code>boot.sh</code>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">qemu-system-x86_64 \<br>    -m 2G \<br>    -smp 2 \<br>    -kernel /home/ubuntu/linux/arch/x86/boot/bzImage \<br>    -append &quot;console=ttyS0 root=/dev/sda earlyprintk=serial net.ifnames=0&quot; \<br>    -drive file=/home/ubuntu/image/bullseye.img,format=raw \<br>    -net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:10021-:22 \<br>    -net nic,model=e1000 \<br>    -enable-kvm \<br>    -nographic \<br>    -pidfile vm.pid \<br>    2&gt;&amp;1 | tee vm.log<br></code></pre></td></tr></table></figure>
+  运行报错，原因是vmware虚拟机没有开启虚拟化,因此无法在虚拟机（ubuntu20.04）中再开启qemu的虚拟机<br>  <img src="/../img/syzkaller+codeql/qemu_not_virtualization.png" srcset="/img/loading.gif" lazyload alt="qemu_not_virtualization"><br>  首先要开启ubuntu20.04的cpu虚拟化<br>  <img src="/../img/syzkaller+codeql/vmware_cpu_virtural.png" srcset="/img/loading.gif" lazyload alt="vmware_cpu_virtual"><br>  但是之后启动虚拟机，vmware报错：“此平台不支持虚拟化的 Intel VT-x&#x2F;EPT。不使用虚拟化的 Intel VT-x&#x2F;EPT，是否继续?”<br>  该问题的解决方案参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/u013669912/article/details/130920193?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-130920193-blog-134643080.235%5Ev43%5Econtrol&spm=1001.2101.3001.4242.1&utm_relevant_index=3">VMware Workstation 此平台不支持虚拟化的 Intel VT-x&#x2F;EPT …不支持嵌套虚拟化。模块“HV”启动失败…不支持使用虚拟化性能计数器。模块“VPMC“启动失败</a>，我把该链接上的步骤都做了一遍才成功了。<br>  重新运行以上命令，启动qemu，输入root即可登录<br>  <img src="/../img/syzkaller+codeql/qemu_linux_start.png" srcset="/img/loading.gif" lazyload alt="qemu_linux_start"><br>  使用ssh登录到qemu实例  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">ssh -i ~/image/bullseye.id_rsa -p 10021 -o &quot;StrictHostKeyChecking no&quot; root@localhost<br></code></pre></td></tr></table></figure>
+  <img src="/../img/syzkaller+codeql/qemu_ssh_login.png" srcset="/img/loading.gif" lazyload alt="qemu_ssh_login"><br>  要杀死正在运行的 QEMU 实例，请按 Ctrl+A 然后按 X 或者在终端运行命令  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">kill $(cat vm.pid)<br></code></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>syzkaller</p>
+<ol>
+<li>前面已经编译好了syzkaller，接下来需要编写配置文件<code>my.cfg</code>  <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;target&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;linux/amd64&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;http&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;127.0.0.1:56741&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;workdir&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;/home/ubuntu/syzkaller/workdir&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;kernel_obj&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;/home/ubuntu/linux&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;image&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;/home/ubuntu/image/bullseye.img&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;sshkey&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;/home/ubuntu/image/bullseye.id_rsa&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;syzkaller&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;/home/ubuntu/syzkaller&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;procs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">8</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;qemu&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;vm&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;count&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;kernel&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;/home/ubuntu/linux/arch/x86/boot/bzImage&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;cpu&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;mem&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2048</span><br>    <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure></li>
+<li>运行syzkaller,先在syzkaller下新建一个<code>workdir</code>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir workdir<br>./bin/syz-manager -config=my.cfg<br></code></pre></td></tr></table></figure>
+  <img src="/../img/syzkaller+codeql/syzkaller_run.png" srcset="/img/loading.gif" lazyload alt="syzkaller_run"><br>  成功启动了2224个系统调用，其他的一些没有启动，可能是设置的原因，暂时不深究。</li>
+<li>自此，过了一遍用syzkaller进行linux内核的模糊测试的流程，证明syzkaller的环境已经搭建成功了。</li>
+</ol>
+</li>
+</ol>
+<h4 id="3-2-2-CVE复现"><a href="#3-2-2-CVE复现" class="headerlink" title="3.2.2 CVE复现"></a>3.2.2 CVE复现</h4><p>本节主要内容是复现syzkaller发现的bug，具体有两个CVE:CVE-2018-14646和CVE-2019-19769。关于syzkaller发现的linux bugs可以在<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/linux/found_bugs.md">found_bugs</a>找到。<br>因为不同的cve针对的linux内核版本不一样，因此我先下载了完整的linux github仓库的代码，数据比较大，下载需要一些时间。<br><img src="/../img/syzkaller+codeql/git_clone_linux_all.png" srcset="/img/loading.gif" lazyload alt="git_clone_linux_all"></p>
+<h5 id="3-2-2-1-CVE-2018-14646"><a href="#3-2-2-1-CVE-2018-14646" class="headerlink" title="3.2.2.1 CVE-2018-14646"></a>3.2.2.1 CVE-2018-14646</h5><p>该cve的有关信息在网站<a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2018-14646">CVE-2018-14646 Detail</a>中找到，针对的linux内核版本为4.15-rc8之前。但是syzkaller要求linux内核版本在4.6之后,因此我选择了版本4.15-rc1进行测试。</p>
+<ol>
+<li>切换内核版本<br><img src="/../img/syzkaller+codeql/git_checkout_4.15_rc1.png" srcset="/img/loading.gif" lazyload alt="git_checkout_4.15_rc1"></li>
+<li>生成默认配置文件<br><img src="/../img/syzkaller+codeql/4.15_rc1_generate_default_config.png" srcset="/img/loading.gif" lazyload alt="4.15_rc1_generate_default_config"></li>
+<li>启动需要的配置选项：这里和前面的差不多，需要注意的是<code>.config</code>文件中没有<code>CONFIG_DEBUG_INFO_DWARF4</code>选项，只有<code>CONFIG_DEBUG_INFO</code>选项，开启该选项即可。即<code>CONFIG_DEBUG_INFO=y</code><br>重新生成配置文件<br><img src="/../img/syzkaller+codeql/4.15_rc1_make_olddefconfig.png" srcset="/img/loading.gif" lazyload alt="4.15_rc1_make_olddefconfig"></li>
+<li>编译内核，遇到报错：<br><img src="/../img/syzkaller+codeql/4.15_rc1_make_error.png" srcset="/img/loading.gif" lazyload alt="4.15_rc1_make_error"><br>查询<code>cc1: all warnings being treated as errors</code>后得知，是因为Makefile设置gcc参数<code>-Werror</code>的原因，需要在Makefile中删除对应的<code>-Werror</code>，但是linux内核的makefile太多，而且很复杂，尝试了很多网上的方法，还是会有这种错误。</li>
+<li>选择其他版本的内核:v4.14.<br><img src="/../img/syzkaller+codeql/git_checkout_v4.14.png" srcset="/img/loading.gif" lazyload alt="git_checkout_v4.14"></li>
+<li>生成默认配置文件，然后启动需要的配置选项，参考2,3步内容。然后编译内核：还是遇到错误:<code>error New address family defined, please update secclass_map.</code><br><img src="/../img/syzkaller+codeql/4.14_make_error_1.png" srcset="/img/loading.gif" lazyload alt="4.14_make_error_1"><br>根据这个linux commit：<a target="_blank" rel="noopener" href="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?id=760f8522ce08">selinux: use kernel linux&#x2F;socket.h for genheaders and mdp</a>修改。<br><code>make clean</code>然后重新编译，又出现新的错误：<br><img src="/../img/syzkaller+codeql/4.14_make_error_2.png" srcset="/img/loading.gif" lazyload alt="4.14_make_error_2"><br>根据这个linux commit: <a target="_blank" rel="noopener" href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b21ebf2fb4cde1618915a97cc773e287ff49173e">x86: Treat R_X86_64_PLT32 as R_X86_64_PC32</a>修改，<code>make clean</code>然后重新编译内核，成功了。<br><img src="/../img/syzkaller+codeql/4.14_make_succuess.png" srcset="/img/loading.gif" lazyload alt="4.4_make_success"></li>
+<li>使用<code>boot.sh</code>，qemu启动内核试试：<br><img src="/../img/syzkaller+codeql/4.14_qemu_boot_fail.png" srcset="/img/loading.gif" lazyload alt="4.14_qemu_boot_fail"><br>一直重复卡在这里了，在Booting the kernel时就重新开始了。猜想应该是内核或者配置不对，但是不知道怎么搞。找了很久的资料，终于根据这个链接<a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/461314/qemu-cannot-boot-locally-built-linux-kernel-anymore">QEMU cannot boot locally built Linux kernel anymore</a> 下面的回答有一个linux kernel的commit链接<a target="_blank" rel="noopener" href="https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/commit/?id=e3d03598e8ae7d195af5d3d049596dec336f569f">x86&#x2F;build&#x2F;64: Force the linker to use 2MB page size</a>，根据这个链接修改linux内核的<code>./arch/x86/Makefile</code>文件，添加以下内容：<br><img src="/../img/syzkaller+codeql/4.14_arch_x86_Makefile.png" srcset="/img/loading.gif" lazyload alt="arch_x86_Makefile"><br><code>make clean</code>，然后重新编译内核，运行<code>boot.sh</code>，启动qemu虚拟机：<br><img src="/../img/syzkaller+codeql/4.14_qemu_boot.png" srcset="/img/loading.gif" lazyload alt="4.14_qemu_boot"><br>可以看到成功启动了。</li>
+<li>启动syzkaller，等待运行结果<br><img src="/../img/syzkaller+codeql/2018_web_res_fail.png" srcset="/img/loading.gif" lazyload alt="2018_web_res_fail"><br>跑了很久，是得到了很多crashes，但是没有预期的crash：<code>general protection fault in __netlink_ns_capable</code>。可能是时间过去很久了，现在的syzkaller能检测的crash更多了，很难发现当时的crash。所以还是用当时报告时用的linux内核版本和syzkaller试试吧。</li>
+<li>相关信息可以在syzbot中找到，具体网址：<a target="_blank" rel="noopener" href="https://syzkaller.appspot.com/bug?extid=e432865c29eb4c48c142">https://syzkaller.appspot.com/bug?extid=e432865c29eb4c48c142</a><br><img src="/../img/syzkaller+codeql/2018_syzboot.png" srcset="/img/loading.gif" lazyload alt="2018_syzbot"><br>但是这个内核版本时4.15-rc5的，编译时遇到了前面4.15-rc1的问题，然后就是syzkaller我checkout到对应的commit后编译时遇到GO语言配置的问题，试了挺久的，也没找到解决办法，现在不知道该怎么办了。</li>
+<li>想了以下，觉得还是这个cve太久远了，现在的一些工具配置都不同，很难复现当时的情况，所以会有很多奇怪的bug,又看了一下这个了链接：<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/linux/found_bugs.md">found_bugs</a>，发现最近的一次commit也是4年前了，于是我就想能不能试试最近的cve。</li>
+</ol>
+<h5 id="3-2-2-2-CVE-2024-38567"><a href="#3-2-2-2-CVE-2024-38567" class="headerlink" title="3.2.2.2 CVE-2024-38567"></a>3.2.2.2 CVE-2024-38567</h5><p>在网上搜索了一下，选择了这个cve，然后最终在syzboot中找到了对应的crash:<br><img src="/../img/syzkaller+codeql/cve_2024_1_syzboot.png" srcset="/img/loading.gif" lazyload alt="cve_2024_1_syzboot"><br>但是syzbot报告的时间是21年，直接现在的syzkaller跑，可能也得不到一样的结果。干脆试试用C程序复现吧。<br>对应的asserts在网页下面有下载链接：<br><img src="/../img/syzkaller+codeql/cve_2024_1_dist_image.png" srcset="/img/loading.gif" lazyload alt="cve_2024_1_dist_image"><br>使用wget下载：<br><img src="/../img/syzkaller+codeql/cve_2024_1_wget.png" srcset="/img/loading.gif" lazyload alt="cve_2024_1_wget"><br>参考<a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/syzbot_assets.md">Reproduce a bug with syzbot’s downloadable assets</a>进行实验。<br>使用unxz命令解压disk-fe24a97.raw.xz，得到disk-fe24a97.raw，然后使用qemu启动VM:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">qemu-system-x86_64 -m 2G -smp 2,<span class="hljs-attribute">sockets</span>=2,cores=1 -drive <span class="hljs-attribute">file</span>=./disk-fe24a97.raw,format=raw -net nic,<span class="hljs-attribute">model</span>=e1000 -net user,<span class="hljs-attribute">host</span>=10.0.2.10,hostfwd=tcp::10022-:22 -enable-kvm -nographic -snapshot<br></code></pre></td></tr></table></figure>
+<p>构建和运行C复现程序<br><img src="/../img/syzkaller+codeql/cve_2024_1_c_repro.png" srcset="/img/loading.gif" lazyload alt="cve_2024_1_c_repro"><br>然后在qemu的界面成功复现这个warning<br><img src="/../img/syzkaller+codeql/cve_2024_1_qemu.png" srcset="/img/loading.gif" lazyload><br>和syzbot页面上的示例crash报告是差不多的，看来是没问题了。<br>还可以使用syz的复现程序，但其实差不多，就没做了。</p>
+<h3 id="3-3-CodeQL实验"><a href="#3-3-CodeQL实验" class="headerlink" title="3.3 CodeQL实验"></a>3.3 CodeQL实验</h3><h4 id="3-3-1-CodeQL环境搭建"><a href="#3-3-1-CodeQL环境搭建" class="headerlink" title="3.3.1 CodeQL环境搭建"></a>3.3.1 CodeQL环境搭建</h4><h4 id="3-3-1-1-CodeQL-CLI安装"><a href="#3-3-1-1-CodeQL-CLI安装" class="headerlink" title="3.3.1.1 CodeQL CLI安装"></a>3.3.1.1 CodeQL CLI安装</h4><ol>
+<li>在<a target="_blank" rel="noopener" href="https://github.com/github/codeql-action/releases">https://github.com/github/codeql-action/releases</a> 下载最新的CodeQL CLI压缩包<br><img src="/../img/syzkaller+codeql/codeql_bundle_download.png" srcset="/img/loading.gif" lazyload alt="codeql_buddle_download"></li>
+<li>解压缩，验证CodeQL已经安装，<br><img src="/../img/syzkaller+codeql/codeql_tar.png" srcset="/img/loading.gif" lazyload alt="codeql_tar"></li>
+<li>在~&#x2F;.bashrc中添加CodeQL环境变量<br><img src="/../img/syzkaller+codeql/codeql_path.png" srcset="/img/loading.gif" lazyload alt="codeql_path"><br><img src="/../img/syzkaller+codeql/codeql_path_verify.png" srcset="/img/loading.gif" lazyload alt="codeql_path_verify"></li>
+<li>测试CodeQL CLI配置<br><img src="/../img/syzkaller+codeql/codeql_test_config.png" srcset="/img/loading.gif" lazyload alt="codeql_test_config"></li>
+</ol>
+<h4 id="3-3-1-2-CodeQL-VSCode扩展安装"><a href="#3-3-1-2-CodeQL-VSCode扩展安装" class="headerlink" title="3.3.1.2 CodeQL VSCode扩展安装"></a>3.3.1.2 CodeQL VSCode扩展安装</h4><ol>
+<li>在vscode扩展中搜索codeql，安装<br><img src="/../img/syzkaller+codeql/codeql_vscode_install.png" srcset="/img/loading.gif" lazyload alt="codeql_vscode_install"></li>
+<li>检查CodeQL CLI接入到了扩展中：查看CodeQL扩展的Log<br><img src="/../img/syzkaller+codeql/codeql_vscode_log.png" srcset="/img/loading.gif" lazyload alt="codeql_vscode_log"></li>
+<li>设置CodeQL工作区<br><img src="/../img/syzkaller+codeql/codeql_starter_clone.png" srcset="/img/loading.gif" lazyload alt="codeql_starter_clone"></li>
+<li>使用CodeQL扩展<ol>
+<li>在Github中选择一个项目，以Apache Kafka为例。在vscode控制面板输入codeql，选择CodeQL: Download Database from GitHub command<br><img src="/../img/syzkaller+codeql/codeql_vscode_download_database_from_github.png" srcset="/img/loading.gif" lazyload alt="codeql_vscode_download_database_from_github"></li>
+<li>输入kafka的github地址<br><img src="/../img/syzkaller+codeql/codeql_vscode_kafka.png" srcset="/img/loading.gif" lazyload alt="codeql_vscode_kafka"></li>
+<li>选择一种要下载的语言，这里选择了java.<br><img src="/../img/syzkaller+codeql/codeql_vscode_kafka_java.png" srcset="/img/loading.gif" lazyload alt="codeql_vscode_kafka_java"><br>但是下载一直失败，没找出原因;<br><img src="/../img/syzkaller+codeql/codeql_vscode_failure.png" srcset="/img/loading.gif" lazyload alt="codeql_vscode_failure"></li>
+<li>我直接输入github&#x2F;codeql，然后选择java，竟然成功了。然后用前面的clone的vscode_codeql_starter里面的查询文件，选择code-custom-queries-java目录下的 example.pl运行，得到以下结果：<br><img src="/../img/syzkaller+codeql/codeql_example.query.png" srcset="/img/loading.gif" lazyload alt="codeql_example.query"></li>
+</ol>
+</li>
+</ol>
+<h2 id="4-实验结果分析"><a href="#4-实验结果分析" class="headerlink" title="4. 实验结果分析"></a>4. 实验结果分析</h2><ol>
+<li>关于syzkaller实验，我针对特定内核用现在的syzkaller没有跑出需要的结果，那使用syz程序和C程序进入内核去复现crashes就做不到了。本来想找一个近期的cve跑的，但是syzboot上的很多东西都看不懂(官方确实有详细的syzboot介绍，但是找起来很麻烦，理解也有困难)。网上的博客写的是代码分析，不能直接借鉴。因此，实验就这样没办法做了。</li>
+<li>关于CodeQL实验，我看了一些cve复现的博客，但是基本都是跳跃式的，操作步骤都默认读者很熟悉CodeQL，讲的都是一些关键的点，以代码分析为主，我根本不知道每一步具体是怎么做的，没办法复现。除非对codeql很熟悉，否则根本不能用codeql去复现cve，我花的时间确实少，没办法做到复现cve。</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" class="category-chain-item">实验报告</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" class="print-no-link">#实验报告</a>
+      
+        <a href="/tags/syzkaller/" class="print-no-link">#syzkaller</a>
+      
+        <a href="/tags/codeql/" class="print-no-link">#codeql</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>基于syzkaller+codeql的漏洞复现实验报告</div>
+      <div>http://diba0.github.io/2024/09/17/基于syzkaller+codeql的漏洞复现实验报告/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>diba0</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/18/%E7%BD%91%E7%BB%9C%E4%BA%A4%E6%8D%A2%E5%8E%9F%E7%90%86%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" title="网络交换原理和系统设计实验报告">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">网络交换原理和系统设计实验报告</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/17/Test-Post/" title="Test Post">
+                        <span class="hidden-mobile">Test Post</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'diba0/diba0.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
